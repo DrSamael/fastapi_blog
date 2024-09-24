@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 from .models import Post, PostCreate
-from .crud import add_post, update_post, retrieve_post, retrieve_posts
+from .crud import add_post, update_post, retrieve_post, retrieve_posts, delete_post
 
-# Create the API router
+
 router = APIRouter()
 
 
@@ -31,7 +31,7 @@ async def edit_post(id: str, post: PostCreate):
     return updated_post
 
 @router.delete("/posts/{id}")
-async def delete_post(id: str):
+async def destroy_post(id: str):
     post = await delete_post(id)
     if post.deleted_count == 1:
         return {"message": "Post deleted successfully"}
