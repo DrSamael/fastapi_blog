@@ -23,7 +23,7 @@ async def show_post(id: str):
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-@router.put("/posts/{id}", response_model=Post)
+@router.patch("/posts/{id}", response_model=Post)
 async def edit_post(id: str, post: PostCreate):
     updated_post = await update_post(id, post.model_dump())
     if updated_post is None:

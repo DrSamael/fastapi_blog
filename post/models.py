@@ -1,22 +1,15 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from bson import ObjectId
+from typing_extensions import Annotated
+from pydantic.functional_validators import BeforeValidator
 
 
-class PyObjectId(ObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+PyObjectId = Annotated[str, BeforeValidator(str)]
 
-    @classmethod
-    def validate(cls, v):
-        if not ObjectId.is_valid(v):
-            raise ValueError("Invalid object ID")
-        return ObjectId(v)
 
-# Schema for the Post collection
 class Post(BaseModel):
-    id: ObjectId = Field( alias="_id")
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     title: str
     content: str
 
@@ -30,7 +23,7 @@ class Post(BaseModel):
             }
         }
 
-# For POST/PUT requests: Input validation model (without 'id')
+
 class PostCreate(BaseModel):
     title: str
     content: str

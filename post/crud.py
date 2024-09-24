@@ -3,7 +3,6 @@ from database import post_collection
 from .models import Post, PostCreate
 
 
-# Helper functions for MongoDB operations
 async def retrieve_post(id: str):
     return await post_collection.find_one({"_id": ObjectId(id)})
 
