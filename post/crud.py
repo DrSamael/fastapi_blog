@@ -26,9 +26,7 @@ async def update_post(id: str, data: dict):
         return False
     post = await post_collection.find_one({"_id": ObjectId(id)})
     if post:
-        updated_post = await post_collection.update_one(
-            {"_id": ObjectId(id)}, {"$set": data}
-        )
+        updated_post = await post_collection.update_one({"_id": ObjectId(id)}, {"$set": data})
         if updated_post:
             return await retrieve_post(id)
     return None
