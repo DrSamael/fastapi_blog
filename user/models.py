@@ -36,3 +36,13 @@ class UserOut(BaseModel):
     first_name: str
     last_name: str
     role: Optional[RoleType] = None
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class UserTokens(BaseModel):
+    access_token: str
+    refresh_token: str

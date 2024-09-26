@@ -2,14 +2,20 @@ from bson import ObjectId
 from database import user_collection
 from .models import User
 
+from auth.utils import get_hashed_password
+
 
 async def add_user(data: dict):
+    data['password'] = await get_hashed_password(data['password'])
     user = await user_collection.insert_one(data)
     new_user = await retrieve_user(user.inserted_id)
     return new_user
 
 async def retrieve_user(id: str):
     return await user_collection.find_one({"_id": ObjectId(id)})
+
+async def retrieve_user_by_email(email: str):
+    return await user_collection.find_one({"email": email})
 
 async def retrieve_users():
     users = []
