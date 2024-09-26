@@ -21,9 +21,18 @@ class User(BaseModel):
         populate_by_name = True
         json_encoders = {ObjectId: str}
 
+
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
     first_name: str
     last_name: str
     role: RoleType
+
+
+class UserOut(BaseModel):
+    id: PyObjectId
+    email: EmailStr
+    first_name: str
+    last_name: str
+    role: Optional[RoleType] = None

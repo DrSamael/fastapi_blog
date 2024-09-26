@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from .models import User, UserCreate
+from .models import User, UserCreate, UserOut
 from .crud import add_user, retrieve_users, retrieve_user, update_user, delete_user
 
 
@@ -12,7 +12,7 @@ async def create_user(user: UserCreate):
     new_user = await add_user(user.model_dump())
     return new_user
 
-@router.get("/", response_model=List[User])
+@router.get("/", response_model=List[UserOut])
 async def list_users():
     return await retrieve_users()
 
