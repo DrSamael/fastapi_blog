@@ -35,3 +35,8 @@ class PostCreate(BaseModel):
                 "content": "Content of the post goes here."
             }
         }
+
+
+class PostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from .models import Post, PostCreate
+from .models import Post, PostCreate, PostUpdate
 from .crud import add_post, update_post, retrieve_post, retrieve_posts, delete_post
 
 
@@ -24,8 +24,8 @@ async def show_post(id: str):
     return post
 
 @router.patch("/{id}", response_model=Post)
-async def edit_post(id: str, post: PostCreate):
-    updated_post = await update_post(id, post.model_dump())
+async def edit_post(id: str, post: PostUpdate):
+    updated_post = await update_post(id, post.model_dump(exclude_unset=True))
     if updated_post is None:
         raise HTTPException(status_code=404, detail="Post not found or no changes made")
     return updated_post
