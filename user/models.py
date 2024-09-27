@@ -30,8 +30,15 @@ class UserCreate(BaseModel):
     role: RoleType
 
 
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    role: Optional[RoleType] = None
+
+
 class UserOut(BaseModel):
-    id: PyObjectId
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias='_id')
     email: EmailStr
     first_name: str
     last_name: str

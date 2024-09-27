@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from fastapi.security import OAuth2PasswordRequestForm
 
-from user.models import User, UserCreate, UserTokens, UserLogin
+from user.models import User, UserCreate, UserTokens, UserLogin, UserOut
 from user.crud import retrieve_user_by_email, add_user
 from .utils import create_access_token, create_refresh_token, verify_password
+from .deps import get_current_user
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -32,3 +32,7 @@ async def login(data: UserLogin):
         "access_token": await create_access_token(user['_id']),
         "refresh_token": await create_refresh_token(user['_id']),
     }
+
+@router.get('/me', summary='Get details of currently logged in user', response_model=UserOut)
+async def get_me(user: User = Depends(get_current_user)):
+    return user
