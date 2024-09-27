@@ -12,7 +12,7 @@ from user.models import User
 
 
 dotenv.load_dotenv()
-reusable_oauth = OAuth2PasswordBearer(tokenUrl="/login", )
+reusable_oauth = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 ALGORITHM = os.getenv('ALGORITHM')
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
@@ -39,7 +39,6 @@ async def get_current_user(token: str = Depends(reusable_oauth)):
 
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Could not find user")
-
     return user
 
 async def admin_required(current_user: User = Depends(get_current_user)):

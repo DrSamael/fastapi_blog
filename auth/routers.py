@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordRequestForm
+from typing import Annotated
 
 from user.models import User, UserCreate, UserTokens, UserLogin, UserOut
 from user.crud import retrieve_user_by_email, add_user
@@ -19,8 +21,8 @@ async def signup(user: UserCreate):
     return new_user
 
 @router.post('/login', response_model=UserTokens)
-async def login(data: UserLogin):
-    user = await retrieve_user_by_email(data.email)
+async def login(data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    user = await retrieve_user_by_email(data.username)
     if user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
 
