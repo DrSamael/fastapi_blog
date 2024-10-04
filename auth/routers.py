@@ -1,10 +1,12 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from typing import Annotated
+from typing import Annotated, Union, Any
+from fastapi import Request
+import jwt
 
-from user.models import User, UserCreate, UserTokens, UserLogin, UserOut
-from user.crud import retrieve_user_by_email, add_user
-from .utils import create_access_token, create_refresh_token, verify_password
+from user.models import User, UserCreate, UserTokens, UserOut
+from user.crud import retrieve_user_by_email, add_user, retrieve_user
+from .utils import verify_password, decode_refresh_token, create_token
 from .deps import get_current_user
 
 
@@ -31,10 +33,33 @@ async def login(data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
 
     return {
-        "access_token": await create_access_token(user['_id']),
-        "refresh_token": await create_refresh_token(user['_id']),
+        "access_token": await create_token(user['_id'], None, 'access_token'),
+        "refresh_token": await create_token(user['_id'], None, 'refresh_token'),
     }
 
 @router.get('/me', summary='Get details of currently logged in user', response_model=UserOut)
 async def get_me(user: User = Depends(get_current_user)):
     return user
+
+@router.get("/refresh-token", response_model=UserTokens)
+async def refresh_access_token(request: Request):
+    refresh_token = request.headers.get('refresh-token')
+    if refresh_token is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing")
+
+    try:
+        token_data = await decode_refresh_token(refresh_token)
+        user: Union[dict[str, Any], None] = await retrieve_user(token_data['sub'])
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+
+        new_access_token = await create_token(user['_id'], None, 'access_token')
+        return {
+            "access_token": new_access_token,
+            "refresh_token": refresh_token
+        }
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")

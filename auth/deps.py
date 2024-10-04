@@ -2,25 +2,22 @@ from typing import Union, Any
 from datetime import datetime
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-import os
 import jwt
 import dotenv
 from pydantic import ValidationError
 
 from user.crud import retrieve_user
 from user.models import User
+from .utils import decode_access_token
 
 
 dotenv.load_dotenv()
 reusable_oauth = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
-ALGORITHM = os.getenv('ALGORITHM')
-JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
-
 
 async def get_current_user(token: str = Depends(reusable_oauth)):
     try:
-        token_data = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
+        token_data = await decode_access_token(token)
 
         if datetime.fromtimestamp(token_data['exp']) < datetime.now():
             raise HTTPException(
