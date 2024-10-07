@@ -3,14 +3,14 @@ from typing import List
 
 from .schemas import Post, PostUpdate, PostCreate
 from .crud import add_post, update_post, retrieve_post, retrieve_posts, delete_post
-from auth.deps import get_current_user
+from auth.deps import get_current_user, author_required, check_post_ownership
 from user.schemas import User
 
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
-@router.post("/", response_model=Post, dependencies=[Depends(get_current_user)])
+@router.post("/", response_model=Post, dependencies=[Depends(get_current_user), Depends(author_required)])
 async def create_post(post: PostCreate, current_user: User = Depends(get_current_user)):
     new_post = await add_post(post.model_dump(), current_user['_id'])
     return new_post
@@ -19,23 +19,23 @@ async def create_post(post: PostCreate, current_user: User = Depends(get_current
 async def list_posts():
     return await retrieve_posts()
 
-@router.get("/{id}", response_model=Post)
-async def show_post(id: str):
-    post = await retrieve_post(id)
+@router.get("/{post_id}", response_model=Post)
+async def show_post(post_id: str):
+    post = await retrieve_post(post_id)
     if post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-@router.patch("/{id}", response_model=Post, dependencies=[Depends(get_current_user)])
-async def edit_post(id: str, post: PostUpdate):
-    updated_post = await update_post(id, post.model_dump(exclude_unset=True))
+@router.patch("/{post_id}", response_model=Post, dependencies=[Depends(get_current_user), Depends(check_post_ownership)])
+async def edit_post(post_id: str, post: PostUpdate):
+    updated_post = await update_post(post_id, post.model_dump(exclude_unset=True))
     if updated_post is None:
         raise HTTPException(status_code=404, detail="Post not found or no changes made")
     return updated_post
 
-@router.delete("/{id}", dependencies=[Depends(get_current_user)])
-async def destroy_post(id: str):
-    post = await delete_post(id)
+@router.delete("/{post_id}", dependencies=[Depends(get_current_user), Depends(check_post_ownership)])
+async def destroy_post(post_id: str):
+    post = await delete_post(post_id)
     if post.deleted_count == 1:
         return {"message": "Post deleted successfully"}
     raise HTTPException(status_code=404, detail="Post not found")

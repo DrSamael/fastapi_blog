@@ -17,7 +17,7 @@ class PostCreate(PostBase):
     pass
 
 
-class PostUpdate(BaseModel):
+class PostUpdate(PostBase):
     title: Optional[str] = None
     content: Optional[str] = None
 
