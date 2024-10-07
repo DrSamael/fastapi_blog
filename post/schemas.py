@@ -8,10 +8,23 @@ from pydantic.functional_validators import BeforeValidator
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
-class Post(BaseModel):
-    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+class PostBase(BaseModel):
     title: str
     content: str
+
+
+class PostCreate(PostBase):
+    pass
+
+
+class PostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+
+
+class Post(PostBase):
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    user_id: Optional[PyObjectId] = None
 
     class Config:
         populate_by_name = True
@@ -22,21 +35,3 @@ class Post(BaseModel):
                 "content": "This is the content of the post."
             }
         }
-
-
-class PostCreate(BaseModel):
-    title: str
-    content: str
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "title": "My First Post",
-                "content": "Content of the post goes here."
-            }
-        }
-
-
-class PostUpdate(BaseModel):
-    title: Optional[str] = None
-    content: Optional[str] = None

@@ -14,7 +14,8 @@ async def retrieve_posts():
         posts.append(Post(**post))
     return posts
 
-async def add_post(post_data: dict):
+async def add_post(post_data: dict, user_id: str):
+    post_data['user_id'] = user_id
     post = await post_collection.insert_one(post_data)
     new_post = await retrieve_post(post.inserted_id)
     return new_post

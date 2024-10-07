@@ -1,17 +1,18 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
-from .schemas import Post, PostCreate, PostUpdate
+from .schemas import Post, PostUpdate, PostCreate
 from .crud import add_post, update_post, retrieve_post, retrieve_posts, delete_post
 from auth.deps import get_current_user
+from user.schemas import User
 
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
 @router.post("/", response_model=Post, dependencies=[Depends(get_current_user)])
-async def create_post(post: PostCreate):
-    new_post = await add_post(post.model_dump())
+async def create_post(post: PostCreate, current_user: User = Depends(get_current_user)):
+    new_post = await add_post(post.model_dump(), current_user['_id'])
     return new_post
 
 @router.get("/", response_model=List[Post])
