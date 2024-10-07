@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
-from .models import Post, PostCreate, PostUpdate
+from .schemas import Post, PostCreate, PostUpdate
 from .crud import add_post, update_post, retrieve_post, retrieve_posts, delete_post
 from auth.deps import get_current_user
 

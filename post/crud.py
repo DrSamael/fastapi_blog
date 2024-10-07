@@ -1,6 +1,7 @@
 from bson import ObjectId
+
 from database import post_collection
-from .models import Post
+from .schemas import Post
 
 
 async def retrieve_post(id: str):
