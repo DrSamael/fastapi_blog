@@ -7,7 +7,7 @@ import dotenv
 from pydantic import ValidationError
 
 from user.crud import retrieve_user
-from user.models import User
+from user.schemas import User
 from .utils import decode_access_token
 
 

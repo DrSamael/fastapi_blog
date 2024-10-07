@@ -1,6 +1,7 @@
 from bson import ObjectId
+
 from database import user_collection
-from .models import User
+from .schemas import User
 
 from auth.utils import get_hashed_password
 

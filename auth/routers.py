@@ -4,7 +4,7 @@ from typing import Annotated, Union, Any
 from fastapi import Request
 import jwt
 
-from user.models import User, UserCreate, UserTokens, UserOut
+from user.schemas import User, UserCreate, UserTokens, UserOut
 from user.crud import retrieve_user_by_email, add_user, retrieve_user
 from .utils import verify_password, decode_refresh_token, create_token
 from .deps import get_current_user

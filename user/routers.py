@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 
-from .models import User, UserCreate, UserUpdate, UserOut
+from .schemas import User, UserCreate, UserUpdate, UserOut
 from .crud import add_user, retrieve_users, retrieve_user, update_user, delete_user
 from auth.deps import get_current_user, admin_required
 
