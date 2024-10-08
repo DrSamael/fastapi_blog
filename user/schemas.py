@@ -1,11 +1,12 @@
 from pydantic import BaseModel, Field, EmailStr
-from typing import Optional, Literal
+from typing import Optional
 from bson import ObjectId
 from typing_extensions import Annotated
 from pydantic.functional_validators import BeforeValidator
 
+from .enums import UserRoles
 
-RoleType = Literal['user', 'author', 'admin']
+
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
@@ -18,7 +19,7 @@ class UserBase(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
-    role: RoleType
+    role: UserRoles
 
 
 class User(UserBase):
@@ -37,7 +38,7 @@ class UserUpdate(UserBase):
     email: Optional[EmailStr] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    role: Optional[RoleType] = None
+    role: Optional[UserRoles] = None
 
 
 class UserOut(UserBase):

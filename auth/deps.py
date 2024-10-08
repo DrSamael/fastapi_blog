@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 from user.crud import retrieve_user
 from user.schemas import User
+from user.enums import UserRoles
 from post.crud import retrieve_post
 from .utils import decode_access_token
 
@@ -40,12 +41,12 @@ async def get_current_user(token: str = Depends(reusable_oauth)):
     return user
 
 async def admin_required(current_user: User = Depends(get_current_user)):
-    if current_user['role'] != "admin":
+    if current_user['role'] != UserRoles.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only Admin has access to this resource")
     return current_user
 
 async def author_required(current_user: User = Depends(get_current_user)):
-    if current_user['role'] not in ["author", "admin"]:
+    if current_user['role'] not in [UserRoles.author, UserRoles.admin]:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only Author has access to this resource")
     return current_user
 
@@ -55,9 +56,9 @@ async def check_post_ownership(post_id: str, current_user: User = Depends(get_cu
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
-    if current_user['role'] == "admin":
+    if current_user['role'] == UserRoles.admin:
         return post
 
-    if post['user_id'] != current_user['_id'] and current_user['role'] != ["author"]:
+    if post['user_id'] != current_user['_id']:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not authorized to modify this post")
     return post

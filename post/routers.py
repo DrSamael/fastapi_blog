@@ -26,14 +26,16 @@ async def show_post(post_id: str):
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-@router.patch("/{post_id}", response_model=Post, dependencies=[Depends(get_current_user), Depends(check_post_ownership)])
+@router.patch("/{post_id}", response_model=Post, dependencies=[Depends(get_current_user), Depends(author_required),
+                                                               Depends(check_post_ownership)])
 async def edit_post(post_id: str, post: PostUpdate):
     updated_post = await update_post(post_id, post.model_dump(exclude_unset=True))
     if updated_post is None:
         raise HTTPException(status_code=404, detail="Post not found or no changes made")
     return updated_post
 
-@router.delete("/{post_id}", dependencies=[Depends(get_current_user), Depends(check_post_ownership)])
+@router.delete("/{post_id}", dependencies=[Depends(get_current_user), Depends(author_required),
+                                           Depends(check_post_ownership)])
 async def destroy_post(post_id: str):
     post = await delete_post(post_id)
     if post.deleted_count == 1:
