@@ -9,43 +9,42 @@ RoleType = Literal['user', 'author', 'admin']
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
-class User(BaseModel):
+class UserConfig:
+    populate_by_name = True
+    json_encoders = {ObjectId: str}
+
+
+class UserBase(BaseModel):
+    email: EmailStr
+    first_name: str
+    last_name: str
+    role: Optional[RoleType] = Field(default=None)
+
+
+class User(UserBase):
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias='_id')
-    email: EmailStr
     password: str
-    first_name: str
-    last_name: str
-    role: RoleType = None
 
-    class Config:
-        populate_by_name = True
-        json_encoders = {ObjectId: str}
+    class Config(UserConfig):
+        pass
 
 
-class UserCreate(BaseModel):
-    email: EmailStr
+class UserCreate(UserBase):
     password: str
-    first_name: str
-    last_name: str
-    role: RoleType
 
 
-class UserUpdate(BaseModel):
+class UserUpdate(UserBase):
     email: Optional[EmailStr] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     role: Optional[RoleType] = None
 
 
-class UserOut(BaseModel):
+class UserOut(UserBase):
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias='_id')
-    email: EmailStr
-    first_name: str
-    last_name: str
-    role: Optional[RoleType] = None
 
-    class Config:
-        populate_by_name = True
+    class Config(UserConfig):
+        pass
 
 
 class UserTokens(BaseModel):

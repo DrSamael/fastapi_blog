@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from typing import List
 
-from .schemas import User, UserCreate, UserUpdate, UserOut
+from .schemas import UserCreate, UserUpdate, UserOut
 from .crud import add_user, retrieve_users, retrieve_user, update_user, delete_user
-from auth.deps import get_current_user, admin_required
+from auth.deps import admin_required
 
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.post("/", response_model=User, dependencies=[Depends(admin_required)])
+@router.post("/", response_model=UserOut, dependencies=[Depends(admin_required)])
 async def create_user(user: UserCreate):
     new_user = await add_user(user.model_dump())
     return new_user
@@ -18,7 +18,7 @@ async def create_user(user: UserCreate):
 async def list_users():
     return await retrieve_users()
 
-@router.get("/{user_id}", response_model=User, dependencies=[Depends(admin_required)])
+@router.get("/{user_id}", response_model=UserOut, dependencies=[Depends(admin_required)])
 async def show_user(user_id: str):
     user = await retrieve_user(user_id)
     if user is None:

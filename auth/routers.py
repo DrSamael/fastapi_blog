@@ -13,7 +13,7 @@ from .deps import get_current_user
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post('/signup', response_model=User)
+@router.post('/signup', response_model=UserOut)
 async def signup(user: UserCreate):
     check_user = await retrieve_user_by_email(user.email)
     if check_user is not None:
