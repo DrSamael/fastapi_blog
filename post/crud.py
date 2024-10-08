@@ -4,8 +4,8 @@ from database import post_collection
 from .schemas import Post
 
 
-async def retrieve_post(id: str):
-    return await post_collection.find_one({"_id": ObjectId(id)})
+async def retrieve_post(post_id: str):
+    return await post_collection.find_one({"_id": ObjectId(post_id)})
 
 async def retrieve_posts():
     posts = []
