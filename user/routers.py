@@ -18,23 +18,23 @@ async def create_user(user: UserCreate):
 async def list_users():
     return await retrieve_users()
 
-@router.get("/{id}", response_model=User, dependencies=[Depends(admin_required)])
-async def show_user(id: str):
-    user = await retrieve_user(id)
+@router.get("/{user_id}", response_model=User, dependencies=[Depends(admin_required)])
+async def show_user(user_id: str):
+    user = await retrieve_user(user_id)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
-@router.patch("/{id}", response_model=UserOut, dependencies=[Depends(admin_required)])
-async def edit_user(id: str, user: UserUpdate):
-    updated_user = await update_user(id, user.model_dump(exclude_unset=True))
+@router.patch("/{user_id}", response_model=UserOut, dependencies=[Depends(admin_required)])
+async def edit_user(user_id: str, user: UserUpdate):
+    updated_user = await update_user(user_id, user.model_dump(exclude_unset=True))
     if updated_user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found or no changes made")
     return updated_user
 
-@router.delete("/{id}", dependencies=[Depends(admin_required)])
-async def destroy_user(id: str):
-    user = await delete_user(id)
+@router.delete("/{user_id}", dependencies=[Depends(admin_required)])
+async def destroy_user(user_id: str):
+    user = await delete_user(user_id)
     if user.deleted_count == 1:
         return {"message": "User deleted successfully"}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

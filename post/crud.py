@@ -20,15 +20,15 @@ async def add_post(post_data: dict, user_id: str):
     new_post = await retrieve_post(post.inserted_id)
     return new_post
 
-async def delete_post(id: str):
-    return await post_collection.delete_one({"_id": ObjectId(id)})
+async def delete_post(post_id: str):
+    return await post_collection.delete_one({"_id": ObjectId(post_id)})
 
-async def update_post(id: str, data: dict):
+async def update_post(post_id: str, data: dict):
     if len(data) < 1:
         return False
-    post = await post_collection.find_one({"_id": ObjectId(id)})
+    post = await post_collection.find_one({"_id": ObjectId(post_id)})
     if post:
-        updated_post = await post_collection.update_one({"_id": ObjectId(id)}, {"$set": data})
+        updated_post = await post_collection.update_one({"_id": ObjectId(post_id)}, {"$set": data})
         if updated_post:
-            return await retrieve_post(id)
+            return await retrieve_post(post_id)
     return None
