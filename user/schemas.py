@@ -44,10 +44,8 @@ class UserOut(BaseModel):
     last_name: str
     role: Optional[RoleType] = None
 
-
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
+    class Config:
+        populate_by_name = True
 
 
 class UserTokens(BaseModel):
