@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import Optional
 from bson import ObjectId
 from typing_extensions import Annotated
@@ -8,11 +8,7 @@ from .enums import UserRoles
 
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
-
-
-class UserConfig:
-    populate_by_name = True
-    json_encoders = {ObjectId: str}
+UserConfig = {'populate_by_name': True, 'json_encoders': {ObjectId: str}}
 
 
 class UserBase(BaseModel):
@@ -23,11 +19,10 @@ class UserBase(BaseModel):
 
 
 class User(UserBase):
+    model_config = ConfigDict(**UserConfig)
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias='_id')
     password: str
-
-    class Config(UserConfig):
-        pass
 
 
 class UserCreate(UserBase):
@@ -42,10 +37,9 @@ class UserUpdate(UserBase):
 
 
 class UserOut(UserBase):
-    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias='_id')
+    model_config = ConfigDict(**UserConfig)
 
-    class Config(UserConfig):
-        pass
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias='_id')
 
 
 class UserTokens(BaseModel):

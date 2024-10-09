@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from bson import ObjectId
 from typing_extensions import Annotated
@@ -23,15 +23,10 @@ class PostUpdate(PostBase):
 
 
 class Post(PostBase):
+    model_config = ConfigDict(populate_by_name=True, json_encoders = {ObjectId: str}, json_schema_extra = {
+        "example": {"title": "A Sample Post",
+                    "content": "This is the content of the post."}
+    })
+
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     user_id: Optional[PyObjectId] = None
-
-    class Config:
-        populate_by_name = True
-        json_encoders = {ObjectId: str}
-        json_schema_extra = {
-            "example": {
-                "title": "A Sample Post",
-                "content": "This is the content of the post."
-            }
-        }
