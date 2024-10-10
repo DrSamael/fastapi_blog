@@ -4,7 +4,6 @@ from bson import ObjectId
 from typing_extensions import Annotated
 from pydantic.functional_validators import BeforeValidator
 
-
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
@@ -23,7 +22,7 @@ class PostUpdate(PostBase):
 
 
 class Post(PostBase):
-    model_config = ConfigDict(populate_by_name=True, json_encoders = {ObjectId: str}, json_schema_extra = {
+    model_config = ConfigDict(populate_by_name=True, json_encoders={ObjectId: str}, json_schema_extra={
         "example": {"title": "A Sample Post",
                     "content": "This is the content of the post."}
     })

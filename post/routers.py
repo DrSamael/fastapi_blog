@@ -6,7 +6,6 @@ from .crud import add_post, update_post, retrieve_post, retrieve_posts, delete_p
 from auth.deps import get_current_user, author_required, check_post_ownership
 from user.schemas import User
 
-
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
@@ -15,9 +14,11 @@ async def create_post(post: PostCreate, current_user: User = Depends(get_current
     new_post = await add_post(post.model_dump(), current_user['_id'])
     return new_post
 
+
 @router.get("/", response_model=List[Post])
 async def list_posts():
     return await retrieve_posts()
+
 
 @router.get("/{post_id}", response_model=Post)
 async def show_post(post_id: str):
@@ -26,6 +27,7 @@ async def show_post(post_id: str):
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
+
 @router.patch("/{post_id}", response_model=Post, dependencies=[Depends(get_current_user), Depends(author_required),
                                                                Depends(check_post_ownership)])
 async def edit_post(post_id: str, post: PostUpdate):
@@ -33,6 +35,7 @@ async def edit_post(post_id: str, post: PostUpdate):
     if updated_post is None:
         raise HTTPException(status_code=404, detail="Post not found or no changes made")
     return updated_post
+
 
 @router.delete("/{post_id}", dependencies=[Depends(get_current_user), Depends(author_required),
                                            Depends(check_post_ownership)])
