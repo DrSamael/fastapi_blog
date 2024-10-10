@@ -12,11 +12,14 @@ async def add_user(data: dict):
     new_user = await retrieve_user(user.inserted_id)
     return new_user
 
+
 async def retrieve_user(user_id: str):
     return await user_collection.find_one({"_id": ObjectId(user_id)})
 
+
 async def retrieve_user_by_email(email: str):
     return await user_collection.find_one({"email": email})
+
 
 async def retrieve_users():
     users = []
@@ -25,6 +28,7 @@ async def retrieve_users():
         users.append(User(**user))
     return users
 
+
 async def update_user(user_id: str, data: dict):
     user = await user_collection.find_one({"_id": ObjectId(user_id)})
     if user:
@@ -32,6 +36,7 @@ async def update_user(user_id: str, data: dict):
         if updated_user:
             return await retrieve_user(user_id)
     return None
+
 
 async def delete_user(user_id: str):
     return await user_collection.delete_one({"_id": ObjectId(user_id)})

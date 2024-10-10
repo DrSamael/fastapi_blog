@@ -6,7 +6,6 @@ from pydantic.functional_validators import BeforeValidator
 
 from .enums import UserRoles
 
-
 PyObjectId = Annotated[str, BeforeValidator(str)]
 UserConfig = {'populate_by_name': True, 'json_encoders': {ObjectId: str}}
 
