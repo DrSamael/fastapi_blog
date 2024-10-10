@@ -9,7 +9,6 @@ from user.crud import retrieve_user_by_email, add_user, retrieve_user
 from .utils import verify_password, decode_refresh_token, create_token
 from .deps import get_current_user
 
-
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
@@ -17,10 +16,11 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 async def signup(user: UserCreate):
     check_user = await retrieve_user_by_email(user.email)
     if check_user is not None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User with this email already exist")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User with this email already exist")
 
     new_user = await add_user(user.model_dump())
     return new_user
+
 
 @router.post('/login', response_model=UserTokens)
 async def login(data: Annotated[OAuth2PasswordRequestForm, Depends()]):
@@ -37,9 +37,11 @@ async def login(data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         "refresh_token": await create_token(user['_id'], None, 'refresh_token'),
     }
 
+
 @router.get('/me', summary='Get details of currently logged in user', response_model=UserOut)
 async def get_me(user: User = Depends(get_current_user)):
     return user
+
 
 @router.get("/refresh-token", response_model=UserTokens)
 async def refresh_access_token(request: Request):

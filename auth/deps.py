@@ -12,7 +12,6 @@ from user.enums import UserRoles
 from post.crud import retrieve_post
 from .utils import decode_access_token
 
-
 dotenv.load_dotenv()
 reusable_oauth = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -23,7 +22,7 @@ async def get_current_user(token: str = Depends(reusable_oauth)):
 
         if datetime.fromtimestamp(token_data['exp']) < datetime.now():
             raise HTTPException(
-                status_code = status.HTTP_401_UNAUTHORIZED,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token expired",
                 headers={"WWW-Authenticate": "Bearer"},
             )
@@ -40,15 +39,18 @@ async def get_current_user(token: str = Depends(reusable_oauth)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Could not find user")
     return user
 
+
 async def admin_required(current_user: User = Depends(get_current_user)):
     if current_user['role'] != UserRoles.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only Admin has access to this resource")
     return current_user
 
+
 async def author_required(current_user: User = Depends(get_current_user)):
     if current_user['role'] not in [UserRoles.author, UserRoles.admin]:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only Author has access to this resource")
     return current_user
+
 
 async def check_post_ownership(post_id: str, current_user: User = Depends(get_current_user)):
     post = await retrieve_post(post_id)
