@@ -8,6 +8,15 @@ from database import post_collection
 faker = Faker()
 
 
+@pytest_asyncio.fixture
+def current_user():
+    return {
+        "_id": ObjectId(),
+        "email": "current_user@example.com",
+        "role": "author"
+    }
+
+
 @pytest_asyncio.fixture(scope='function')
 async def test_user():
     user = {
@@ -16,7 +25,7 @@ async def test_user():
         "password": "123123",
         "first_name": "Fixture",
         "last_name": "User",
-        "role": "user"
+        "role": "author"
     }
     await user_collection.insert_one(user)
     yield user

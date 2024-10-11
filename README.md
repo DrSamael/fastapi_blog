@@ -16,8 +16,10 @@
 | python-multipart  |   0.0.10    |
 
 ## Run the project
+
 1. pipenv shell
 2. uvicorn main:app --reload
 
 ## Create admin user
+
 python seed.py
