@@ -56,9 +56,10 @@ async def refresh_access_token(request: Request):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
 
         new_access_token = await create_token(user['_id'], None, 'access_token')
+        new_refresh_token = await create_token(user['_id'], None, 'refresh_token')
         return {
             "access_token": new_access_token,
-            "refresh_token": refresh_token
+            "refresh_token": new_refresh_token
         }
 
     except jwt.ExpiredSignatureError:
