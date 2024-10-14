@@ -42,8 +42,8 @@ async def test_show_post_invalid_data():
 
 @pytest.mark.positive
 @pytest.mark.asyncio
-async def test_create_post_successful(current_user):
-    app.dependency_overrides[get_current_user] = lambda: current_user
+async def test_create_post_successful(test_user):
+    app.dependency_overrides[get_current_user] = lambda: test_user
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
         post_data = {"title": "Test title", "content": "Test content"}
         response = await async_client.post(f"/posts/", json=post_data)
@@ -67,8 +67,8 @@ async def test_create_post_unauthorized():
 
 @pytest.mark.negative
 @pytest.mark.asyncio
-async def test_create_post_invalid_data(current_user):
-    app.dependency_overrides[get_current_user] = lambda: current_user
+async def test_create_post_invalid_data(test_user):
+    app.dependency_overrides[get_current_user] = lambda: test_user
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
         post_data = {"title": "Test title"}
         response = await async_client.post(f"/posts/", json=post_data)
@@ -80,12 +80,78 @@ async def test_create_post_invalid_data(current_user):
 
 @pytest.mark.negative
 @pytest.mark.asyncio
-async def test_create_post_author_required(current_user):
-    current_user['role'] = 'user'
-    app.dependency_overrides[get_current_user] = lambda: current_user
+async def test_create_post_author_required(test_user):
+    test_user['role'] = 'user'
+    app.dependency_overrides[get_current_user] = lambda: test_user
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
         post_data = {"title": "Test title", "content": "Test content"}
         response = await async_client.post(f"/posts/", json=post_data)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.positive
+@pytest.mark.asyncio
+async def test_edit_post_successful(test_user, test_post):
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
+        post_data = {"title": "Updated title", "content": "Updated content"}
+        response = await async_client.patch(f"/posts/{test_post['_id']}", json=post_data)
+        result_post = response.json()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert result_post['title'] == post_data['title']
+        assert result_post['content'] == post_data['content']
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_edit_post_unauthorized(test_post):
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
+        post_data = {"title": "Updated title", "content": "Updated content"}
+        response = await async_client.patch(f"/posts/{test_post['_id']}", json=post_data)
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_edit_post_invalid_post_id(test_user):
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
+        post_data = {"title": "Updated title", "content": "Updated content"}
+        response = await async_client.patch(f"/posts/{str(ObjectId())}", json=post_data)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_edit_post_author_required(test_user, test_post):
+    test_user['role'] = 'user'
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
+        post_data = {"title": "Updated title", "content": "Updated content"}
+        response = await async_client.patch(f"/posts/{test_post['_id']}", json=post_data)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_edit_post_wrong_owner(test_user, test_post2):
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
+        post_data = {"title": "Updated title", "content": "Updated content"}
+        response = await async_client.patch(f"/posts/{test_post2['_id']}", json=post_data)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
 

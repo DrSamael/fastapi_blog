@@ -44,6 +44,18 @@ async def test_post(test_user):
 
 
 @pytest_asyncio.fixture(scope='function')
+async def test_post2(test_user):
+    post_data = {
+        "_id": ObjectId(),
+        "title": "Fixture Test Post",
+        "content": "Content of the fixture post.",
+        "user_id": ObjectId()
+    }
+    await post_collection.insert_one(post_data)
+    yield post_data
+
+
+@pytest_asyncio.fixture(scope='function')
 async def test_posts_list(test_user):
     posts_data = []
 
