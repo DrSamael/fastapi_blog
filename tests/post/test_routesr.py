@@ -156,3 +156,62 @@ async def test_edit_post_wrong_owner(test_user, test_post2):
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     app.dependency_overrides.clear()
+
+
+@pytest.mark.positive
+@pytest.mark.asyncio
+async def test_destroy_post_successful(test_user, test_post):
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
+        response = await async_client.delete(f"/posts/{test_post['_id']}")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()['detail'] == 'Post deleted successfully'
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_destroy_post_unauthorized(test_post):
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
+        response = await async_client.delete(f"/posts/{test_post['_id']}")
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_delete_post_invalid_post_id(test_user):
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
+        response = await async_client.delete(f"/posts/{str(ObjectId())}")
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_delete_post_author_required(test_user, test_post):
+    test_user['role'] = 'user'
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
+        response = await async_client.delete(f"/posts/{test_post['_id']}")
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_delete_post_wrong_owner(test_user, test_post2):
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_client:
+        response = await async_client.delete(f"/posts/{test_post2['_id']}")
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    app.dependency_overrides.clear()

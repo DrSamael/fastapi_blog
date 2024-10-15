@@ -39,5 +39,5 @@ async def edit_user(user_id: str, user: UserUpdate):
 async def destroy_user(user_id: str):
     user = await delete_user(user_id)
     if user.deleted_count == 1:
-        return {"message": "User deleted successfully"}
+        return {"detail": "User deleted successfully"}
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

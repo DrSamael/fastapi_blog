@@ -42,5 +42,5 @@ async def edit_post(post_id: str, post: PostUpdate):
 async def destroy_post(post_id: str):
     post = await delete_post(post_id)
     if post.deleted_count == 1:
-        return {"message": "Post deleted successfully"}
+        return {"detail": "Post deleted successfully"}
     raise HTTPException(status_code=404, detail="Post not found")
