@@ -4,7 +4,7 @@
 |:-----------------:|:-----------:|
 |      Python       |   3.11.9    |
 |      pipenv       |  2024.0.3   |
-|      fastapi      |   0.115.0   |
+|      fastapi      |   0.115.1   |
 |       motor       |    3.6.0    |
 |     pydantic      |    2.9.2    |
 |      uvicorn      |   0.30.6    |
@@ -15,11 +15,15 @@
 |      bcrypt       |    4.0.1    |
 | python-multipart  |   0.0.10    |
 
-## Run the project
+### Run the project
 
 1. pipenv shell
 2. uvicorn main:app --reload
 
-## Create admin user
+### Create admin user
 
 python seed.py
+
+### Run the tests and generate a coverage report
+
+pytest --cov --cov-report=html
