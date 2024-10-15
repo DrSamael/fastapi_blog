@@ -4,7 +4,7 @@ from httpx import AsyncClient, ASGITransport
 
 from auth.deps import get_current_user
 from main import app
-from .fixtures import *
+from tests.fixtures import *
 
 
 @pytest.mark.positive
