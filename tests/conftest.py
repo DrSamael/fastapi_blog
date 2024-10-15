@@ -1,5 +1,4 @@
 import os
-import pytest
 import pytest_asyncio
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -9,15 +8,14 @@ def pytest_configure():
     os.environ['TESTING'] = 'true'
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(scope="session")
 def event_loop():
-    """Create an instance of the event loop for the test session."""
+    """Create an event loop for the session scope."""
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
 
 
-# @pytest.mark.asyncio(scope="session")
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def cleanup_test_database():
     yield
