@@ -6,14 +6,22 @@ from httpx import AsyncClient, ASGITransport
 from main import app
 from database import user_collection
 from database import post_collection
+from auth.deps import get_current_user
 
 faker = Faker()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope='function')
 async def async_client():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         yield client
+
+
+@pytest_asyncio.fixture(scope='function')
+async def override_get_current_user(test_user):
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    yield
+    app.dependency_overrides.clear()
 
 
 @pytest_asyncio.fixture(scope='function')
