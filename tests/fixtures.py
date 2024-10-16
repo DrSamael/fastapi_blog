@@ -7,6 +7,7 @@ from main import app
 from database import user_collection
 from database import post_collection
 from auth.deps import get_current_user
+from user.enums import UserRoles
 
 faker = Faker()
 
@@ -18,7 +19,10 @@ async def async_client():
 
 
 @pytest_asyncio.fixture(scope='function')
-async def override_get_current_user(test_user):
+async def override_get_current_user(test_user, request):
+    marker = request.node.get_closest_marker("user_role")
+    test_user['role'] = marker.args[0] if marker else UserRoles.author
+
     app.dependency_overrides[get_current_user] = lambda: test_user
     yield
     app.dependency_overrides.clear()

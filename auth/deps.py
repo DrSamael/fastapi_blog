@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 import jwt
 import dotenv
 from pydantic import ValidationError
+from bson import ObjectId
 
 from user.crud import retrieve_user
 from user.schemas import User
@@ -14,6 +15,13 @@ from .utils import decode_access_token
 
 dotenv.load_dotenv()
 reusable_oauth = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+
+def validate_object_id(post_id: str):
+    try:
+        return ObjectId(post_id)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{post_id} is not a valid ObjectId.")
 
 
 async def get_current_user(token: str = Depends(reusable_oauth)):
@@ -56,7 +64,8 @@ async def check_post_ownership(post_id: str, current_user: User = Depends(get_cu
     post = await retrieve_post(post_id)
 
     if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+        return
+        # raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
     if current_user['role'] == UserRoles.admin:
         return post
