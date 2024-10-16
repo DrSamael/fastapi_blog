@@ -1,18 +1,26 @@
 import pytest_asyncio
 from bson import ObjectId
 from faker import Faker
+from httpx import AsyncClient, ASGITransport
 
+from main import app
 from database import user_collection
 from database import post_collection
 
 faker = Faker()
 
 
+@pytest_asyncio.fixture
+async def async_client():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        yield client
+
+
 @pytest_asyncio.fixture(scope='function')
 async def test_user():
     user = {
         "_id": ObjectId(),
-        "email": "fixtureuser-user@example.com",
+        "email": "fixture-user@example.com",
         "password": "123123",
         "first_name": "Fixture",
         "last_name": "User",
@@ -20,6 +28,25 @@ async def test_user():
     }
     await user_collection.insert_one(user)
     yield user
+
+
+@pytest_asyncio.fixture(scope='function')
+async def test_users_list():
+    users_data = []
+
+    for _ in range(3):
+        user_data = {
+            "_id": ObjectId(),
+            "email": "fixture-user@example.com",
+            "password": "123123",
+            "first_name": "Fixture",
+            "last_name": "User",
+            "role": "user"
+        }
+        users_data.append(user_data)
+
+    await user_collection.insert_many(users_data)
+    yield users_data
 
 
 @pytest_asyncio.fixture(scope='function')
@@ -35,7 +62,7 @@ async def test_post(test_user):
 
 
 @pytest_asyncio.fixture(scope='function')
-async def test_post2(test_user):
+async def test_post2():
     post_data = {
         "_id": ObjectId(),
         "title": "Fixture Test Post",
