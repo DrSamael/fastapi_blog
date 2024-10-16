@@ -29,7 +29,7 @@ async def delete_post(post_id: str):
 
 async def update_post(post_id: str, data: dict):
     if len(data) < 1:
-        return False
+        return None
     post = await post_collection.find_one({"_id": ObjectId(post_id)})
     if post:
         updated_post = await post_collection.update_one({"_id": ObjectId(post_id)}, {"$set": data})
