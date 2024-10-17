@@ -66,8 +66,8 @@ async def test_create_post_invalid_data(async_client, override_get_current_user)
 
 @pytest.mark.negative
 @pytest.mark.asyncio
-@pytest.mark.user_role(UserRoles.user)
 async def test_create_post_author_required(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.user
     post_data = {"title": "Test title", "content": "Test content"}
     response = await async_client.post(f"/posts/", json=post_data)
 
@@ -114,8 +114,8 @@ async def test_edit_post_invalid_data(async_client, override_get_current_user):
 
 @pytest.mark.negative
 @pytest.mark.asyncio
-@pytest.mark.user_role(UserRoles.user)
 async def test_edit_post_author_required(async_client, test_user, override_get_current_user, test_post):
+    test_user['role'] = UserRoles.user
     post_data = {"title": "Updated title", "content": "Updated content"}
     response = await async_client.patch(f"/posts/{test_post['_id']}", json=post_data)
 
@@ -158,8 +158,8 @@ async def test_delete_post_invalid_post_id(async_client, override_get_current_us
 
 @pytest.mark.negative
 @pytest.mark.asyncio
-@pytest.mark.user_role(UserRoles.user)
 async def test_delete_post_author_required(async_client, test_user, override_get_current_user, test_post):
+    test_user['role'] = UserRoles.user
     response = await async_client.delete(f"/posts/{test_post['_id']}")
 
     assert response.status_code == status.HTTP_403_FORBIDDEN

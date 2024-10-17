@@ -13,8 +13,8 @@ UserData = {"email": "user@example.com",
 
 @pytest.mark.positive
 @pytest.mark.asyncio
-@pytest.mark.user_role(UserRoles.admin)
 async def test_list_users(async_client, test_user, override_get_current_user, test_users_list):
+    test_user['role'] = UserRoles.admin
     response = await async_client.get("/users/")
 
     result_users_ids = [user['_id'] for user in response.json()]
@@ -26,8 +26,8 @@ async def test_list_users(async_client, test_user, override_get_current_user, te
 
 @pytest.mark.positive
 @pytest.mark.asyncio
-@pytest.mark.user_role(UserRoles.admin)
 async def test_show_user_successful(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
     user_id = str(test_user['_id'])
     response = await async_client.get(f"/users/{user_id}")
 
@@ -37,8 +37,8 @@ async def test_show_user_successful(async_client, test_user, override_get_curren
 
 @pytest.mark.negative
 @pytest.mark.asyncio
-@pytest.mark.user_role(UserRoles.admin)
 async def test_show_user_invalid_data(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
     user_id = str(ObjectId())
     response = await async_client.get(f"/users/{user_id}")
 
@@ -47,8 +47,8 @@ async def test_show_user_invalid_data(async_client, test_user, override_get_curr
 
 @pytest.mark.positive
 @pytest.mark.asyncio
-@pytest.mark.user_role(UserRoles.admin)
-async def test_create_user_successful(async_client, override_get_current_user):
+async def test_create_user_successful(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
     response = await async_client.post(f"/users/", json=UserData)
     result_post = response.json()
 
@@ -68,8 +68,8 @@ async def test_create_user_unauthorized(async_client):
 
 @pytest.mark.negative
 @pytest.mark.asyncio
-@pytest.mark.user_role(UserRoles.admin)
-async def test_create_user_invalid_data(async_client, override_get_current_user):
+async def test_create_user_invalid_data(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
     invalid_user_data = {"email": "user@example.com"}
     response = await async_client.post(f"/users/", json=invalid_user_data)
 
