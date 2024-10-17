@@ -106,8 +106,8 @@ async def test_edit_post_invalid_post_id(async_client, override_get_current_user
 
 @pytest.mark.negative
 @pytest.mark.asyncio
-async def test_edit_post_invalid_data(async_client, override_get_current_user):
-    response = await async_client.patch(f"/posts/{str(ObjectId())}", json={})
+async def test_edit_post_invalid_data(async_client, test_post, override_get_current_user):
+    response = await async_client.patch(f"/posts/{test_post['_id']}", json={})
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 

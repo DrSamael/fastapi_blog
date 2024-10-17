@@ -10,6 +10,9 @@ UserData = {"email": "user@example.com",
             "role": "user",
             "password": "string"}
 
+UpdatedUserData = {"first_name": "Updated first_name",
+                   "last_name": "Updated last_name"}
+
 
 @pytest.mark.positive
 @pytest.mark.asyncio
@@ -80,5 +83,86 @@ async def test_create_user_invalid_data(async_client, test_user, override_get_cu
 @pytest.mark.asyncio
 async def test_create_user_admin_required(async_client, override_get_current_user):
     response = await async_client.post(f"/users/", json=UserData)
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.positive
+@pytest.mark.asyncio
+async def test_edit_user_successful(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
+    response = await async_client.patch(f"/users/{test_user['_id']}", json=UpdatedUserData)
+    result_user = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert result_user['first_name'] == UpdatedUserData['first_name']
+    assert result_user['last_name'] == UpdatedUserData['last_name']
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_edit_user_unauthorized(async_client, test_user):
+    response = await async_client.patch(f"/users/{test_user['_id']}", json=UpdatedUserData)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_edit_user_invalid_post_id(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
+    response = await async_client.patch(f"/users/{str(ObjectId())}", json=UpdatedUserData)
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_edit_user_invalid_data(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
+    response = await async_client.patch(f"/users/{test_user['_id']}", json={})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_edit_user_admin_required(async_client, test_user, override_get_current_user):
+    response = await async_client.patch(f"/users/{test_user['_id']}", json=UpdatedUserData)
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.positive
+@pytest.mark.asyncio
+async def test_destroy_user_successful(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
+    response = await async_client.delete(f"/users/{test_user['_id']}")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['detail'] == 'User deleted successfully'
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_destroy_user_unauthorized(async_client, test_user):
+    response = await async_client.delete(f"/users/{test_user['_id']}")
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_delete_user_invalid_user_id(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
+    response = await async_client.delete(f"/users/{str(ObjectId())}")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.negative
+@pytest.mark.asyncio
+async def test_delete_user_admin_required(async_client, test_user, override_get_current_user):
+    response = await async_client.delete(f"/users/{test_user['_id']}")
 
     assert response.status_code == status.HTTP_403_FORBIDDEN

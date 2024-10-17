@@ -30,6 +30,8 @@ async def retrieve_users():
 
 
 async def update_user(user_id: str, data: dict):
+    if len(data) < 1:
+        return None
     user = await user_collection.find_one({"_id": ObjectId(user_id)})
     if user:
         updated_user = await user_collection.update_one({"_id": ObjectId(user_id)}, {"$set": data})
