@@ -7,8 +7,24 @@ from main import app
 from database import user_collection
 from database import post_collection
 from auth.deps import get_current_user
+from database import db
 
 faker = Faker()
+
+UserData = {"email": "user@example.com",
+            "first_name": "string",
+            "last_name": "string",
+            "role": "user",
+            "password": "string"}
+
+UpdatedUserData = {"first_name": "Updated first_name",
+                   "last_name": "Updated last_name"}
+
+
+@pytest_asyncio.fixture(scope='function', autouse=True)
+async def clear_test_db():
+    for collection_name in await db.list_collection_names():
+        await db[collection_name].delete_many({})
 
 
 @pytest_asyncio.fixture(scope='function')

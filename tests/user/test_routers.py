@@ -4,15 +4,6 @@ from fastapi import status
 from tests.fixtures import *
 from user.enums import UserRoles
 
-UserData = {"email": "user@example.com",
-            "first_name": "string",
-            "last_name": "string",
-            "role": "user",
-            "password": "string"}
-
-UpdatedUserData = {"first_name": "Updated first_name",
-                   "last_name": "Updated last_name"}
-
 
 @pytest.mark.asyncio
 async def test_list_users(async_client, test_user, override_get_current_user, test_users_list):
