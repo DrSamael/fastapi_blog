@@ -47,13 +47,13 @@ async def get_me(user: User = Depends(get_current_user)):
 async def refresh_access_token(request: Request):
     refresh_token = request.headers.get('refresh-token')
     if refresh_token is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Refresh token missing")
 
     try:
         token_data = await decode_refresh_token(refresh_token)
         user: Union[dict[str, Any], None] = await retrieve_user(token_data['sub'])
         if user is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
         new_access_token = await create_token(user['_id'], None, 'access_token')
         new_refresh_token = await create_token(user['_id'], None, 'refresh_token')
@@ -63,6 +63,6 @@ async def refresh_access_token(request: Request):
         }
 
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token expired")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Refresh token expired")
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid refresh token")

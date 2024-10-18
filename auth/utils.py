@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Union, Any
 import jwt
 import dotenv
@@ -27,9 +27,9 @@ async def verify_password(password: str, hashed_pass: str):
 async def create_token(subject: Union[str, Any], expires_delta: int = None, token_type: str = None):
     secret_key, expire_minutes = await define_token_params(token_type)
     if expires_delta is not None:
-        expires_delta = datetime.utcnow() + expires_delta
+        expires_delta = datetime.now(timezone.utc) + expires_delta
     else:
-        expires_delta = datetime.utcnow() + timedelta(minutes=float(expire_minutes))
+        expires_delta = datetime.now(timezone.utc) + timedelta(minutes=float(expire_minutes))
 
     to_encode = {"exp": expires_delta, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, secret_key, ALGORITHM)
