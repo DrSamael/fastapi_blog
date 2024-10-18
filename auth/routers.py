@@ -2,11 +2,10 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated, Union, Any
 from fastapi import Request
-import jwt
 
 from user.schemas import User, UserCreate, UserTokens, UserOut
 from user.crud import retrieve_user_by_email, add_user, retrieve_user
-from .utils import verify_password, decode_refresh_token, create_token
+from .utils import verify_password, decode_refresh_token, create_token, validate_token
 from .deps import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -49,20 +48,13 @@ async def refresh_access_token(request: Request):
     if refresh_token is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Refresh token missing")
 
-    try:
-        token_data = await decode_refresh_token(refresh_token)
-        user: Union[dict[str, Any], None] = await retrieve_user(token_data['sub'])
-        if user is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    token_data = await validate_token(refresh_token, 'refresh_token')
+    user: Union[dict[str, Any], None] = await retrieve_user(token_data['sub'])
 
-        new_access_token = await create_token(user['_id'], None, 'access_token')
-        new_refresh_token = await create_token(user['_id'], None, 'refresh_token')
-        return {
-            "access_token": new_access_token,
-            "refresh_token": new_refresh_token
-        }
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Could not find user")
 
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Refresh token expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid refresh token")
+    return {
+        "access_token": await create_token(user['_id'], None, 'access_token'),
+        "refresh_token": await create_token(user['_id'], None, 'refresh_token')
+    }

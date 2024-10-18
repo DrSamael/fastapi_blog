@@ -1,17 +1,14 @@
+import dotenv
 from typing import Union, Any
-from datetime import datetime
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-import jwt
-import dotenv
-from pydantic import ValidationError
 from bson import ObjectId
 
 from user.crud import retrieve_user
 from user.schemas import User
 from user.enums import UserRoles
 from post.crud import retrieve_post
-from .utils import decode_access_token
+from .utils import validate_token
 
 dotenv.load_dotenv()
 reusable_oauth = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -25,22 +22,7 @@ def validate_object_id(post_id: str):
 
 
 async def get_current_user(token: str = Depends(reusable_oauth)):
-    try:
-        token_data = await decode_access_token(token)
-
-        if datetime.fromtimestamp(token_data['exp']) < datetime.now():
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token expired",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-    except(jwt.exceptions.InvalidTokenError, ValidationError):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
+    token_data = await validate_token(token, 'access_token')
     user: Union[dict[str, Any], None] = await retrieve_user(token_data['sub'])
 
     if user is None:

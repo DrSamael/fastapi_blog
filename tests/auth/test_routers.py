@@ -1,6 +1,6 @@
 import pytest
 import jwt
-from fastapi import status
+from fastapi import status, HTTPException
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
@@ -98,10 +98,10 @@ async def test_login_blank_data(async_client):
 
 
 @pytest.mark.asyncio
-@patch("auth.routers.decode_refresh_token")
-async def test_refresh_token_successful(mock_decode_refresh_token, async_client, test_user):
+@patch("auth.routers.validate_token")
+async def test_refresh_token_successful(mock_validate_token, async_client, test_user):
     expires_delta = datetime.now(timezone.utc) + timedelta(minutes=float(15))
-    mock_decode_refresh_token.return_value = {'exp': expires_delta, 'sub': test_user["_id"]}
+    mock_validate_token.return_value = {'exp': expires_delta, 'sub': test_user["_id"]}
     refresh_token = "valid_refresh_token"
 
     response = await async_client.get("/auth/refresh-token", headers={"refresh-token": refresh_token})
@@ -121,37 +121,37 @@ async def test_refresh_token_blank(async_client, test_user):
 
 
 @pytest.mark.asyncio
-@patch("auth.routers.decode_refresh_token")
-async def test_refresh_token_invalid_user_id(mock_decode_refresh_token, async_client):
+@patch("auth.routers.validate_token")
+async def test_refresh_token_invalid_user_id(mock_validate_token, async_client):
     expires_delta = datetime.now(timezone.utc) + timedelta(minutes=float(15))
-    mock_decode_refresh_token.return_value = {'exp': expires_delta, 'sub': ObjectId()}
+    mock_validate_token.return_value = {'exp': expires_delta, 'sub': ObjectId()}
     refresh_token = "valid_refresh_token"
 
     response = await async_client.get("/auth/refresh-token", headers={"refresh-token": refresh_token})
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == "User not found"
+    assert response.json()["detail"] == "Could not find user"
 
 
 @pytest.mark.asyncio
-@patch("auth.routers.decode_refresh_token")
-async def test_refresh_token_expired(mock_decode_refresh_token, async_client):
+@patch("auth.routers.validate_token")
+async def test_refresh_token_expired(mock_validate_token, async_client):
     expired_token = "expired_refresh_token"
-    mock_decode_refresh_token.side_effect = jwt.ExpiredSignatureError
+    mock_validate_token.side_effect = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
 
     response = await async_client.get("/auth/refresh-token", headers={"refresh-token": expired_token})
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == "Refresh token expired"
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json()["detail"] == "Token expired"
 
 
 @pytest.mark.asyncio
-@patch("auth.routers.decode_refresh_token")
-async def test_refresh_token_invalid(mock_decode_refresh_token, async_client):
+@patch("auth.routers.validate_token")
+async def test_refresh_token_invalid(mock_validate_token, async_client):
     invalid_token = "invalid_refresh_token"
-    mock_decode_refresh_token.side_effect = jwt.InvalidTokenError
+    mock_validate_token.side_effect = HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials")
 
     response = await async_client.get("/auth/refresh-token", headers={"refresh-token": invalid_token})
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == "Invalid refresh token"
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json()["detail"] == "Could not validate credentials"
