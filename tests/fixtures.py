@@ -7,6 +7,7 @@ from main import app
 from database import user_collection
 from database import post_collection
 from auth.deps import get_current_user
+from auth.utils import get_hashed_password
 from database import db
 
 faker = Faker()
@@ -52,6 +53,15 @@ async def test_user():
     }
     await user_collection.insert_one(user)
     yield user
+
+
+@pytest_asyncio.fixture(scope='function')
+async def test_user_with_encrypted_password(test_user):
+    test_user['password'] = await get_hashed_password("123123")
+    data = {"password": test_user['password']}
+
+    await user_collection.update_one({"_id": test_user["_id"]}, {"$set": data})
+    yield test_user
 
 
 @pytest_asyncio.fixture(scope='function')
