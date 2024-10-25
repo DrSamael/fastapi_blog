@@ -1,5 +1,4 @@
 import pytest
-import jwt
 from fastapi import status, HTTPException
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch

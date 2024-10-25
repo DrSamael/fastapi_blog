@@ -29,7 +29,7 @@ async def verify_password(password: str, hashed_pass: str):
 async def create_token(subject: Union[str, Any], expires_delta: int = None, token_type: TokenType = None):
     secret_key, expire_minutes = await define_token_params(token_type)
     if expires_delta is not None:
-        expires_delta = datetime.now(timezone.utc) + expires_delta
+        expires_delta = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
     else:
         expires_delta = datetime.now(timezone.utc) + timedelta(minutes=float(expire_minutes))
 
