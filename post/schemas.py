@@ -8,8 +8,9 @@ PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
 class PostBase(BaseModel):
-    title: str
-    content: str
+    title: str = Field(max_length=200, min_length=5)
+    content: str = Field(max_length=10000, min_length=10)
+    published: bool = Field(default=False)
 
 
 class PostCreate(PostBase):
@@ -17,8 +18,9 @@ class PostCreate(PostBase):
 
 
 class PostUpdate(PostBase):
-    title: Optional[str] = None
-    content: Optional[str] = None
+    title: Optional[str] = Field(None, max_length=300, min_length=5)
+    content: Optional[str] = Field(None, max_length=10000, min_length=10)
+    published: Optional[bool] = None
 
 
 class Post(PostBase):

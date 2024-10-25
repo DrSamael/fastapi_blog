@@ -56,10 +56,19 @@ async def test_create_user_unauthorized(async_client):
 
 
 @pytest.mark.asyncio
-async def test_create_user_invalid_data(async_client, test_user, override_get_current_user):
+async def test_create_user_missing_data(async_client, test_user, override_get_current_user):
     test_user['role'] = UserRoles.admin
     invalid_user_data = {"email": "user@example.com"}
     response = await async_client.post(f"/users/", json=invalid_user_data)
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
+@pytest.mark.asyncio
+async def test_create_user_invalid_data(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
+    UserData['last_name'] = "string" * 10
+    response = await async_client.post(f"/users/", json=UserData)
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
@@ -98,11 +107,20 @@ async def test_edit_user_invalid_post_id(async_client, test_user, override_get_c
 
 
 @pytest.mark.asyncio
-async def test_edit_user_invalid_data(async_client, test_user, override_get_current_user):
+async def test_edit_user_blank_data(async_client, test_user, override_get_current_user):
     test_user['role'] = UserRoles.admin
     response = await async_client.patch(f"/users/{test_user['_id']}", json={})
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_edit_user_missing_data(async_client, test_user, override_get_current_user):
+    test_user['role'] = UserRoles.admin
+    UpdatedUserData['last_name'] = "string" * 10
+    response = await async_client.patch(f"/users/{test_user['_id']}", json=UpdatedUserData)
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
 @pytest.mark.asyncio

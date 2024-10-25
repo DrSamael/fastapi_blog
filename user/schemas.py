@@ -12,8 +12,8 @@ UserConfig = {'populate_by_name': True, 'json_encoders': {ObjectId: str}}
 
 class UserBase(BaseModel):
     email: EmailStr
-    first_name: str
-    last_name: str
+    first_name: str = Field(max_length=50)
+    last_name: str = Field(max_length=50)
     role: UserRoles
 
 
@@ -30,8 +30,8 @@ class UserCreate(UserBase):
 
 class UserUpdate(UserBase):
     email: Optional[EmailStr] = None
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
+    first_name: Optional[str] = Field(None, max_length=50)
+    last_name: Optional[str] = Field(None, max_length=50)
     role: Optional[UserRoles] = None
 
 
