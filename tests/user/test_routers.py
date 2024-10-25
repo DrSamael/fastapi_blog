@@ -6,7 +6,7 @@ from user.enums import UserRoles
 
 
 @pytest.mark.asyncio
-async def test_list_users(async_client, test_user, override_get_current_user, test_users_list):
+async def test_list_users(async_client, test_user, test_current_user, test_users_list):
     test_user['role'] = UserRoles.admin
     response = await async_client.get("/users/")
 
@@ -18,7 +18,7 @@ async def test_list_users(async_client, test_user, override_get_current_user, te
 
 
 @pytest.mark.asyncio
-async def test_show_user_successful(async_client, test_user, override_get_current_user):
+async def test_show_user_successful(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     user_id = str(test_user['_id'])
     response = await async_client.get(f"/users/{user_id}")
@@ -28,7 +28,7 @@ async def test_show_user_successful(async_client, test_user, override_get_curren
 
 
 @pytest.mark.asyncio
-async def test_show_user_invalid_data(async_client, test_user, override_get_current_user):
+async def test_show_user_invalid_data(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     user_id = str(ObjectId())
     response = await async_client.get(f"/users/{user_id}")
@@ -37,7 +37,7 @@ async def test_show_user_invalid_data(async_client, test_user, override_get_curr
 
 
 @pytest.mark.asyncio
-async def test_create_user_successful(async_client, test_user, override_get_current_user):
+async def test_create_user_successful(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     response = await async_client.post(f"/users/", json=UserData)
     result_post = response.json()
@@ -56,7 +56,7 @@ async def test_create_user_unauthorized(async_client):
 
 
 @pytest.mark.asyncio
-async def test_create_user_missing_data(async_client, test_user, override_get_current_user):
+async def test_create_user_missing_data(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     invalid_user_data = {"email": "user@example.com"}
     response = await async_client.post(f"/users/", json=invalid_user_data)
@@ -65,7 +65,7 @@ async def test_create_user_missing_data(async_client, test_user, override_get_cu
 
 
 @pytest.mark.asyncio
-async def test_create_user_invalid_data(async_client, test_user, override_get_current_user):
+async def test_create_user_invalid_data(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     UserData['last_name'] = "string" * 10
     response = await async_client.post(f"/users/", json=UserData)
@@ -74,14 +74,14 @@ async def test_create_user_invalid_data(async_client, test_user, override_get_cu
 
 
 @pytest.mark.asyncio
-async def test_create_user_admin_required(async_client, override_get_current_user):
+async def test_create_user_admin_required(async_client, test_current_user):
     response = await async_client.post(f"/users/", json=UserData)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.asyncio
-async def test_edit_user_successful(async_client, test_user, override_get_current_user):
+async def test_edit_user_successful(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     response = await async_client.patch(f"/users/{test_user['_id']}", json=UpdatedUserData)
     result_user = response.json()
@@ -99,7 +99,7 @@ async def test_edit_user_unauthorized(async_client, test_user):
 
 
 @pytest.mark.asyncio
-async def test_edit_user_invalid_post_id(async_client, test_user, override_get_current_user):
+async def test_edit_user_invalid_post_id(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     response = await async_client.patch(f"/users/{str(ObjectId())}", json=UpdatedUserData)
 
@@ -107,7 +107,7 @@ async def test_edit_user_invalid_post_id(async_client, test_user, override_get_c
 
 
 @pytest.mark.asyncio
-async def test_edit_user_blank_data(async_client, test_user, override_get_current_user):
+async def test_edit_user_blank_data(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     response = await async_client.patch(f"/users/{test_user['_id']}", json={})
 
@@ -115,7 +115,7 @@ async def test_edit_user_blank_data(async_client, test_user, override_get_curren
 
 
 @pytest.mark.asyncio
-async def test_edit_user_missing_data(async_client, test_user, override_get_current_user):
+async def test_edit_user_missing_data(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     UpdatedUserData['last_name'] = "string" * 10
     response = await async_client.patch(f"/users/{test_user['_id']}", json=UpdatedUserData)
@@ -124,14 +124,14 @@ async def test_edit_user_missing_data(async_client, test_user, override_get_curr
 
 
 @pytest.mark.asyncio
-async def test_edit_user_admin_required(async_client, test_user, override_get_current_user):
+async def test_edit_user_admin_required(async_client, test_user, test_current_user):
     response = await async_client.patch(f"/users/{test_user['_id']}", json=UpdatedUserData)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.asyncio
-async def test_destroy_user_successful(async_client, test_user, override_get_current_user):
+async def test_destroy_user_successful(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     response = await async_client.delete(f"/users/{test_user['_id']}")
 
@@ -147,7 +147,7 @@ async def test_destroy_user_unauthorized(async_client, test_user):
 
 
 @pytest.mark.asyncio
-async def test_delete_user_invalid_user_id(async_client, test_user, override_get_current_user):
+async def test_delete_user_invalid_user_id(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.admin
     response = await async_client.delete(f"/users/{str(ObjectId())}")
 
@@ -155,7 +155,7 @@ async def test_delete_user_invalid_user_id(async_client, test_user, override_get
 
 
 @pytest.mark.asyncio
-async def test_delete_user_admin_required(async_client, test_user, override_get_current_user):
+async def test_delete_user_admin_required(async_client, test_user, test_current_user):
     response = await async_client.delete(f"/users/{test_user['_id']}")
 
     assert response.status_code == status.HTTP_403_FORBIDDEN

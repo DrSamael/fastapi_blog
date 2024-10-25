@@ -33,7 +33,7 @@ async def test_show_post_invalid_data(async_client):
 
 
 @pytest.mark.asyncio
-async def test_create_post_successful(async_client, override_get_current_user):
+async def test_create_post_successful(async_client, test_current_user):
     post_data = {"title": "Test title", "content": "Test content"}
     response = await async_client.post(f"/posts/", json=post_data)
     result_post = response.json()
@@ -51,7 +51,7 @@ async def test_create_post_unauthorized(async_client):
 
 
 @pytest.mark.asyncio
-async def test_create_post_missing_data(async_client, override_get_current_user):
+async def test_create_post_missing_data(async_client, test_current_user):
     post_data = {"title": "Test title"}
     response = await async_client.post(f"/posts/", json=post_data)
 
@@ -59,7 +59,7 @@ async def test_create_post_missing_data(async_client, override_get_current_user)
 
 
 @pytest.mark.asyncio
-async def test_create_post_invalid_data(async_client, override_get_current_user):
+async def test_create_post_invalid_data(async_client, test_current_user):
     post_data = {"title": "Test title", "content": "too long text" * 1000}
     response = await async_client.post(f"/posts/", json=post_data)
 
@@ -67,7 +67,7 @@ async def test_create_post_invalid_data(async_client, override_get_current_user)
 
 
 @pytest.mark.asyncio
-async def test_create_post_author_required(async_client, test_user, override_get_current_user):
+async def test_create_post_author_required(async_client, test_user, test_current_user):
     test_user['role'] = UserRoles.user
     post_data = {"title": "Test title", "content": "Test content"}
     response = await async_client.post(f"/posts/", json=post_data)
@@ -76,7 +76,7 @@ async def test_create_post_author_required(async_client, test_user, override_get
 
 
 @pytest.mark.asyncio
-async def test_edit_post_successful(async_client, override_get_current_user, test_post):
+async def test_edit_post_successful(async_client, test_current_user, test_post):
     post_data = {"title": "Updated title", "content": "Updated content"}
     response = await async_client.patch(f"/posts/{test_post['_id']}", json=post_data)
     result_post = response.json()
@@ -95,7 +95,7 @@ async def test_edit_post_unauthorized(async_client, test_post):
 
 
 @pytest.mark.asyncio
-async def test_edit_post_invalid_post_id(async_client, override_get_current_user):
+async def test_edit_post_invalid_post_id(async_client, test_current_user):
     post_data = {"title": "Updated title", "content": "Updated content"}
     response = await async_client.patch(f"/posts/{str(ObjectId())}", json=post_data)
 
@@ -103,14 +103,14 @@ async def test_edit_post_invalid_post_id(async_client, override_get_current_user
 
 
 @pytest.mark.asyncio
-async def test_edit_post_blank_data(async_client, test_post, override_get_current_user):
+async def test_edit_post_blank_data(async_client, test_post, test_current_user):
     response = await async_client.patch(f"/posts/{test_post['_id']}", json={})
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.asyncio
-async def test_edit_post_invalid_data(async_client, override_get_current_user):
+async def test_edit_post_invalid_data(async_client, test_current_user):
     post_data = {"title": "Test title", "content": "too long text" * 1000}
     response = await async_client.patch(f"/posts/{str(ObjectId())}", json=post_data)
 
@@ -118,7 +118,7 @@ async def test_edit_post_invalid_data(async_client, override_get_current_user):
 
 
 @pytest.mark.asyncio
-async def test_edit_post_author_required(async_client, test_user, override_get_current_user, test_post):
+async def test_edit_post_author_required(async_client, test_user, test_current_user, test_post):
     test_user['role'] = UserRoles.user
     post_data = {"title": "Updated title", "content": "Updated content"}
     response = await async_client.patch(f"/posts/{test_post['_id']}", json=post_data)
@@ -127,7 +127,7 @@ async def test_edit_post_author_required(async_client, test_user, override_get_c
 
 
 @pytest.mark.asyncio
-async def test_edit_post_wrong_owner(async_client, override_get_current_user, test_post2):
+async def test_edit_post_wrong_owner(async_client, test_current_user, test_post2):
     post_data = {"title": "Updated title", "content": "Updated content"}
     response = await async_client.patch(f"/posts/{test_post2['_id']}", json=post_data)
 
@@ -135,7 +135,16 @@ async def test_edit_post_wrong_owner(async_client, override_get_current_user, te
 
 
 @pytest.mark.asyncio
-async def test_destroy_post_successful(async_client, override_get_current_user, test_post):
+async def test_destroy_post_successful(async_client, test_current_user, test_post):
+    response = await async_client.delete(f"/posts/{test_post['_id']}")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['detail'] == 'Post deleted successfully'
+
+
+@pytest.mark.asyncio
+async def test_destroy_post_successful_with_admin_role(async_client, test_user, test_current_user, test_post):
+    test_user['role'] = UserRoles.admin
     response = await async_client.delete(f"/posts/{test_post['_id']}")
 
     assert response.status_code == status.HTTP_200_OK
@@ -150,14 +159,14 @@ async def test_destroy_post_unauthorized(async_client, test_post):
 
 
 @pytest.mark.asyncio
-async def test_delete_post_invalid_post_id(async_client, override_get_current_user):
+async def test_delete_post_invalid_post_id(async_client, test_current_user):
     response = await async_client.delete(f"/posts/{str(ObjectId())}")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.asyncio
-async def test_delete_post_author_required(async_client, test_user, override_get_current_user, test_post):
+async def test_delete_post_author_required(async_client, test_user, test_current_user, test_post):
     test_user['role'] = UserRoles.user
     response = await async_client.delete(f"/posts/{test_post['_id']}")
 
@@ -165,7 +174,7 @@ async def test_delete_post_author_required(async_client, test_user, override_get
 
 
 @pytest.mark.asyncio
-async def test_delete_post_wrong_owner(async_client, override_get_current_user, test_post2):
+async def test_delete_post_wrong_owner(async_client, test_current_user, test_post2):
     response = await async_client.delete(f"/posts/{test_post2['_id']}")
 
     assert response.status_code == status.HTTP_403_FORBIDDEN

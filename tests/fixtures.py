@@ -35,7 +35,7 @@ async def async_client():
 
 
 @pytest_asyncio.fixture(scope='function')
-async def override_get_current_user(test_user, request):
+async def test_current_user(test_user, request):
     app.dependency_overrides[get_current_user] = lambda: test_user
     yield
     app.dependency_overrides.clear()

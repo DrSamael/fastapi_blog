@@ -35,7 +35,7 @@ async def test_signup_invalid_data(async_client):
 
 
 @pytest.mark.asyncio
-async def test_get_me_successful(async_client, test_user, override_get_current_user):
+async def test_get_me_successful(async_client, test_user, test_current_user):
     response = await async_client.get(f"/auth/me")
     result_user = response.json()
 
