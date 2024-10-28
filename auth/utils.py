@@ -50,8 +50,6 @@ async def define_token_params(token_type: TokenType = None):
         }
     }
 
-    # if token_type not in token_config:
-    #     raise ValueError(f"Invalid token_type: {token_type}")
     return token_config[token_type]['secret_key'], token_config[token_type]['expire_minutes']
 
 
