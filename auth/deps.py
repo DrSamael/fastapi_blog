@@ -2,7 +2,6 @@ import dotenv
 from typing import Union, Any
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from bson import ObjectId
 
 from user.crud import retrieve_user
 from user.schemas import User
@@ -12,13 +11,6 @@ from .utils import validate_token
 
 dotenv.load_dotenv()
 reusable_oauth = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-
-def validate_object_id(post_id: str):
-    try:
-        return ObjectId(post_id)
-    except Exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{post_id} is not a valid ObjectId.")
 
 
 async def get_current_user(token: str = Depends(reusable_oauth)):
