@@ -20,6 +20,11 @@ async def list_posts():
     return await retrieve_posts()
 
 
+@router.get("/user-posts", response_model=List[Post], dependencies=[Depends(get_current_user)])
+async def current_user_posts(current_user: User = Depends(get_current_user)):
+    return await retrieve_posts(current_user['_id'])
+
+
 @router.get("/{post_id}", response_model=Post)
 async def show_post(post_id: str):
     post = await retrieve_post(post_id)

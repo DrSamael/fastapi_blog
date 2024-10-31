@@ -16,6 +16,23 @@ async def test_list_posts(async_client, test_posts_list):
 
 
 @pytest.mark.asyncio
+async def test_current_user_posts_successful(async_client, test_posts_list, test_current_user):
+    response = await async_client.get("/posts/user-posts")
+    result_posts_ids = [post['_id'] for post in response.json()]
+    test_posts_ids = [str(post['_id']) for post in test_posts_list]
+
+    assert response.status_code == status.HTTP_200_OK
+    assert result_posts_ids.sort() == test_posts_ids.sort()
+
+
+@pytest.mark.asyncio
+async def test_current_user_posts_unauthorized(async_client):
+    response = await async_client.get("/posts/user-posts")
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.asyncio
 async def test_show_post_successful(async_client, test_post):
     post_id = str(test_post['_id'])
     response = await async_client.get(f"/posts/{post_id}")

@@ -1,4 +1,5 @@
 from bson import ObjectId
+from typing import Optional
 
 from database import post_collection
 from .schemas import Post
@@ -8,9 +9,10 @@ async def retrieve_post(post_id: str):
     return await post_collection.find_one({"_id": ObjectId(post_id)})
 
 
-async def retrieve_posts():
+async def retrieve_posts(user_id: Optional[str] = None):
     posts = []
-    cursor = post_collection.find({})
+    filter_criteria = {"user_id": ObjectId(user_id)} if user_id else {}
+    cursor = post_collection.find(filter_criteria)
     async for post in cursor:
         posts.append(Post(**post))
     return posts
