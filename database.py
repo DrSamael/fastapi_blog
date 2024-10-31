@@ -7,3 +7,4 @@ client = AsyncIOMotorClient("mongodb://localhost:27017")
 db = client[DATABASE_NAME]
 post_collection = db.posts
 user_collection = db.users
+author_collection = db.authors
