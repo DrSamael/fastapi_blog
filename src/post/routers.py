@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
 from .schemas import Post, PostUpdate, PostCreate
-from .crud import add_post, update_post, retrieve_post, retrieve_posts, delete_post
+from .crud import (add_post, update_post, retrieve_post, retrieve_posts, delete_post, retrieve_published_posts,
+                   retrieve_current_user_posts)
 from src.auth.deps import get_current_user, author_required, check_post_ownership
 from src.user.schemas import User
 
@@ -17,12 +18,17 @@ async def create_post(post: PostCreate, current_user: User = Depends(get_current
 
 @router.get("/", response_model=List[Post])
 async def list_posts():
-    return await retrieve_posts()
+    return await retrieve_posts({})
+
+
+@router.get("/published", response_model=List[Post])
+async def published_list_posts():
+    return await retrieve_published_posts()
 
 
 @router.get("/user-posts", response_model=List[Post], dependencies=[Depends(get_current_user)])
 async def current_user_posts(current_user: User = Depends(get_current_user)):
-    return await retrieve_posts(current_user['_id'])
+    return await retrieve_current_user_posts(current_user['_id'])
 
 
 @router.get("/{post_id}", response_model=Post)

@@ -89,7 +89,8 @@ async def test_post(test_user):
         "_id": ObjectId(),
         "title": "Fixture Test Post",
         "content": "Content of the fixture post.",
-        "user_id": test_user['_id']
+        "user_id": test_user['_id'],
+        "published": False
     }
     await post_collection.insert_one(post_data)
     yield post_data
@@ -101,7 +102,8 @@ async def test_post2():
         "_id": ObjectId(),
         "title": "Fixture Test Post",
         "content": "Content of the fixture post.",
-        "user_id": ObjectId()
+        "user_id": ObjectId(),
+        "published": False
     }
     await post_collection.insert_one(post_data)
     yield post_data
@@ -116,7 +118,8 @@ async def test_posts_list(test_user):
             "_id": ObjectId(),
             "title": faker.sentence(nb_words=5),
             "content": faker.text(max_nb_chars=50),
-            "user_id": test_user['_id']
+            "user_id": test_user['_id'],
+            "published": True
         }
         posts_data.append(post_data)
 
