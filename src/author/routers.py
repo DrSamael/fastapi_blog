@@ -5,15 +5,14 @@ from .schemas import Author, AuthorCreate, AuthorUpdate
 from .crud import retrieve_authors, add_autor, retrieve_author, update_author, delete_author
 from src.auth.deps import admin_required, get_current_user
 from src.user.schemas import User
-from src.author.services.validator import check_author_existence
+from src.author.services.validator import validate_author_data
 
 router = APIRouter(prefix="/authors", tags=["authors"])
 
 
 @router.post("/", response_model=Author, dependencies=[Depends(admin_required)])
 async def create_author(author: AuthorCreate):
-    # author.user_id = ObjectId(author.user_id)
-    await check_author_existence(author.user_id)
+    await validate_author_data(author.user_id)
     new_author = await add_autor(author.model_dump())
     return new_author
 
