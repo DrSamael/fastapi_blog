@@ -6,6 +6,7 @@ from httpx import AsyncClient, ASGITransport
 from src.main import app
 from src.database import user_collection
 from src.database import post_collection
+from src.database import author_collection
 from src.auth.deps import get_current_user
 from src.auth.utils import get_hashed_password
 from src.database import db
@@ -20,6 +21,12 @@ UserData = {"email": "user@example.com",
 
 UpdatedUserData = {"first_name": "Updated first_name",
                    "last_name": "Updated last_name"}
+
+AuthorData = {"company": "Company title",
+              "biography": faker.text(max_nb_chars=50),
+              "genre": ["social"],
+              "user_id": ObjectId()
+              }
 
 
 @pytest_asyncio.fixture(scope='function', autouse=True)
@@ -125,3 +132,47 @@ async def test_posts_list(test_user):
 
     await post_collection.insert_many(posts_data)
     yield posts_data
+
+
+@pytest_asyncio.fixture(scope='function')
+async def test_users_author(test_user):
+    author_data = {
+        "_id": ObjectId(),
+        "company": "Company title",
+        "biography": faker.text(max_nb_chars=50),
+        "user_id": test_user['_id'],
+        "genre": ["sport", "culture"]
+    }
+    await author_collection.insert_one(author_data)
+    yield author_data
+
+
+@pytest_asyncio.fixture(scope='function')
+async def test_author():
+    author_data = {
+        "_id": ObjectId(),
+        "company": "Company title",
+        "biography": faker.text(max_nb_chars=50),
+        "user_id": ObjectId(),
+        "genre": ["sport", "culture"]
+    }
+    await author_collection.insert_one(author_data)
+    yield author_data
+
+
+@pytest_asyncio.fixture(scope='function')
+async def test_authors_list():
+    authors = []
+
+    for _ in range(3):
+        author_data = {
+            "_id": ObjectId(),
+            "company": "Company title",
+            "biography": faker.text(max_nb_chars=50),
+            "user_id": ObjectId(),
+            "genre": ["sport", "culture"]
+        }
+        authors.append(author_data)
+
+    await author_collection.insert_many(authors)
+    yield authors
