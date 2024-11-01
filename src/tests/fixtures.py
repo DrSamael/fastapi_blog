@@ -3,12 +3,12 @@ from bson import ObjectId
 from faker import Faker
 from httpx import AsyncClient, ASGITransport
 
-from main import app
-from database import user_collection
-from database import post_collection
-from auth.deps import get_current_user
-from auth.utils import get_hashed_password
-from database import db
+from src.main import app
+from src.database import user_collection
+from src.database import post_collection
+from src.auth.deps import get_current_user
+from src.auth.utils import get_hashed_password
+from src.database import db
 
 faker = Faker()
 

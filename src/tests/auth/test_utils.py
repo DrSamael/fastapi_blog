@@ -1,7 +1,7 @@
 import pytest
 
-from auth.utils import create_token, decode_access_token, decode_refresh_token
-from tests.fixtures import *
+from src.auth.utils import create_token, decode_access_token, decode_refresh_token
+from src.tests.fixtures import *
 
 
 @pytest.mark.asyncio

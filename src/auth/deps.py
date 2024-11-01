@@ -3,10 +3,10 @@ from typing import Union, Any
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
-from user.crud import retrieve_user
-from user.schemas import User
-from user.enums import UserRoles
-from post.crud import retrieve_post
+from src.user.crud import retrieve_user
+from src.user.schemas import User
+from src.user.enums import UserRoles
+from src.post.crud import retrieve_post
 from .utils import validate_token
 
 dotenv.load_dotenv()

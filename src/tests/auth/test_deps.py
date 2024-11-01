@@ -1,8 +1,8 @@
 import pytest
 from fastapi import HTTPException, status
 
-from auth.utils import create_token
-from tests.fixtures import *
+from src.auth.utils import create_token
+from src.tests.fixtures import *
 
 
 @pytest.mark.asyncio

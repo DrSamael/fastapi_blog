@@ -18,7 +18,7 @@
 ### Run the project
 
 1. pipenv shell
-2. uvicorn main:app --reload
+2. uvicorn src.main:app --reload
 
 ### Create admin user
 

@@ -1,8 +1,8 @@
 import pytest
 from fastapi import status
 
-from tests.fixtures import *
-from user.enums import UserRoles
+from src.tests.fixtures import *
+from src.user.enums import UserRoles
 
 
 @pytest.mark.asyncio

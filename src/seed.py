@@ -1,5 +1,5 @@
 import asyncio
-from user.crud import retrieve_user_by_email, add_user
+from src.user.crud import retrieve_user_by_email, add_user
 
 UserData = {
     "email": "superadmin@user.com",

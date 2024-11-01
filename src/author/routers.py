@@ -3,9 +3,9 @@ from typing import List
 
 from .schemas import Author, AuthorCreate, AuthorUpdate
 from .crud import retrieve_authors, add_autor, retrieve_author, update_author, delete_author
-from auth.deps import admin_required, get_current_user
-from user.schemas import User
-from author.services.validator import check_author_existence
+from src.auth.deps import admin_required, get_current_user
+from src.user.schemas import User
+from src.author.services.validator import check_author_existence
 
 router = APIRouter(prefix="/authors", tags=["authors"])
 

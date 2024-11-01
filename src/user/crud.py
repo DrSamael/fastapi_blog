@@ -1,9 +1,9 @@
 from bson import ObjectId
 
-from database import user_collection
+from src.database import user_collection
 from .schemas import User
 
-from auth.utils import get_hashed_password
+from src.auth.utils import get_hashed_password
 
 
 async def add_user(data: dict):

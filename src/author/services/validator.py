@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 
-from author.crud import retrieve_author_by_user_id
+from src.author.crud import retrieve_author_by_user_id
 
 
 async def check_author_existence(user_id: str):

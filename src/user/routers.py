@@ -3,7 +3,7 @@ from typing import List
 
 from .schemas import UserCreate, UserUpdate, UserOut
 from .crud import add_user, retrieve_users, retrieve_user, update_user, delete_user
-from auth.deps import admin_required
+from src.auth.deps import admin_required
 
 router = APIRouter(prefix="/users", tags=["users"])
 

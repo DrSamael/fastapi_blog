@@ -1,7 +1,7 @@
 from bson import ObjectId
 from typing import Optional
 
-from database import post_collection
+from src.database import post_collection
 from .schemas import Post
 
 

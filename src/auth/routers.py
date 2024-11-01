@@ -3,9 +3,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated, Union, Any
 from fastapi import Request
 
-from user.schemas import User, UserCreate, UserTokens, UserOut
-from user.crud import retrieve_user_by_email, add_user, retrieve_user
-from .utils import verify_password, decode_refresh_token, create_token, validate_token
+from src.user.schemas import User, UserCreate, UserTokens, UserOut
+from src.user.crud import retrieve_user_by_email, add_user, retrieve_user
+from .utils import verify_password, create_token, validate_token
 from .deps import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])

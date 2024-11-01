@@ -3,7 +3,7 @@ from fastapi import status, HTTPException
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
-from tests.fixtures import *
+from src.tests.fixtures import *
 
 
 @pytest.mark.asyncio
@@ -97,7 +97,7 @@ async def test_login_blank_data(async_client):
 
 
 @pytest.mark.asyncio
-@patch("auth.routers.validate_token")
+@patch("src.auth.routers.validate_token")
 async def test_refresh_token_successful(mock_validate_token, async_client, test_user):
     expires_delta = datetime.now(timezone.utc) + timedelta(minutes=float(15))
     mock_validate_token.return_value = {'exp': expires_delta, 'sub': test_user["_id"]}
@@ -120,7 +120,7 @@ async def test_refresh_token_blank(async_client, test_user):
 
 
 @pytest.mark.asyncio
-@patch("auth.routers.validate_token")
+@patch("src.auth.routers.validate_token")
 async def test_refresh_token_invalid_user_id(mock_validate_token, async_client):
     expires_delta = datetime.now(timezone.utc) + timedelta(minutes=float(15))
     mock_validate_token.return_value = {'exp': expires_delta, 'sub': ObjectId()}
@@ -133,7 +133,7 @@ async def test_refresh_token_invalid_user_id(mock_validate_token, async_client):
 
 
 @pytest.mark.asyncio
-@patch("auth.routers.validate_token")
+@patch("src.auth.routers.validate_token")
 async def test_refresh_token_expired(mock_validate_token, async_client):
     expired_token = "expired_refresh_token"
     mock_validate_token.side_effect = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
@@ -145,7 +145,7 @@ async def test_refresh_token_expired(mock_validate_token, async_client):
 
 
 @pytest.mark.asyncio
-@patch("auth.routers.validate_token")
+@patch("src.auth.routers.validate_token")
 async def test_refresh_token_invalid(mock_validate_token, async_client):
     invalid_token = "invalid_refresh_token"
     mock_validate_token.side_effect = HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials")

@@ -3,8 +3,8 @@ from typing import List
 
 from .schemas import Post, PostUpdate, PostCreate
 from .crud import add_post, update_post, retrieve_post, retrieve_posts, delete_post
-from auth.deps import get_current_user, author_required, check_post_ownership
-from user.schemas import User
+from src.auth.deps import get_current_user, author_required, check_post_ownership
+from src.user.schemas import User
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
