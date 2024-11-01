@@ -34,7 +34,7 @@ async def test_current_user_posts_unauthorized(async_client):
 
 
 @pytest.mark.asyncio
-async def test_published__posts_successful(async_client, test_posts_list, test_post, test_current_user):
+async def test_published_posts_successful(async_client, test_posts_list, test_post, test_current_user):
     response = await async_client.get("/posts/published")
     result_posts_ids = [post['_id'] for post in response.json()]
     test_posts_ids = [str(post['_id']) for post in test_posts_list]
