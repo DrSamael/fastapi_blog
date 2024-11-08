@@ -102,4 +102,13 @@ async def test_create_author_invalid_user(async_client, test_user, test_current_
     assert response.json()["detail"] == "User does not exist"
 
 
-# user already has an author
+async def test_create_author_user_already_has_author(async_client, test_user, test_current_user):
+    test_user['role'] = UserRoles.admin
+    AuthorData["user_id"] = str(test_user['_id'])
+
+    response = await async_client.post(f"/authors/", json=AuthorData)
+    assert response.status_code == status.HTTP_200_OK
+
+    response2 = await async_client.post(f"/authors/", json=AuthorData)
+    assert response2.status_code == status.HTTP_400_BAD_REQUEST
+    assert response2.json()["detail"] == "This user is already has an author"
