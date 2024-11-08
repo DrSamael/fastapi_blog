@@ -10,6 +10,7 @@ from src.database import author_collection
 from src.auth.deps import get_current_user
 from src.auth.utils import get_hashed_password
 from src.database import db
+from src.user.enums import UserRoles
 
 faker = Faker()
 
@@ -43,10 +44,32 @@ async def async_client():
 
 
 @pytest_asyncio.fixture(scope='function')
-async def test_current_user(test_user, request):
-    app.dependency_overrides[get_current_user] = lambda: test_user
-    yield
+async def test_current_user(test_user):
+    async def _override_user(role: str):
+        test_user['role'] = role
+        app.dependency_overrides[get_current_user] = lambda: test_user
+        yield
+
+    yield _override_user
     app.dependency_overrides.clear()
+
+
+@pytest_asyncio.fixture(scope='function')
+async def test_current_user_admin(test_current_user):
+    async for _ in test_current_user(UserRoles.admin):
+        yield
+
+
+@pytest_asyncio.fixture(scope='function')
+async def test_current_user_author(test_current_user):
+    async for _ in test_current_user(UserRoles.author):
+        yield
+
+
+@pytest_asyncio.fixture(scope='function')
+async def test_current_user_simple(test_current_user):
+    async for _ in test_current_user(UserRoles.user):
+        yield
 
 
 @pytest_asyncio.fixture(scope='function')

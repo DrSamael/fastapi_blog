@@ -29,7 +29,7 @@ async def test_signup_invalid_data(async_client):
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-async def test_get_me_successful(async_client, test_user, test_current_user):
+async def test_get_me_successful(async_client, test_user, test_current_user_author):
     response = await async_client.get(f"/auth/me")
     result_user = response.json()
 
