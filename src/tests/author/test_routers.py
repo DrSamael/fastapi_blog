@@ -112,3 +112,75 @@ async def test_create_author_user_already_has_author(async_client, test_user, te
     response2 = await async_client.post(f"/authors/", json=AuthorData)
     assert response2.status_code == status.HTTP_400_BAD_REQUEST
     assert response2.json()["detail"] == "This user is already has an author"
+
+
+async def test_edit_author_successful(async_client, test_current_user, test_user, test_author):
+    test_user['role'] = UserRoles.admin
+    response = await async_client.patch(f"/authors/{test_author['_id']}", json=UpdatedAuthorData)
+    result_author = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert result_author['company'] == UpdatedAuthorData['company']
+
+
+async def test_edit_author_unauthorized(async_client, test_author):
+    response = await async_client.patch(f"/authors/{test_author['_id']}", json=UpdatedAuthorData)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+async def test_edit_author_invalid_author_id(async_client, test_current_user, test_user):
+    test_user['role'] = UserRoles.admin
+    response = await async_client.patch(f"/authors/{str(ObjectId())}", json=UpdatedAuthorData)
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+async def test_edit_author_blank_data(async_client, test_current_user, test_user, test_author):
+    test_user['role'] = UserRoles.admin
+    response = await async_client.patch(f"/authors/{test_author['_id']}", json={})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+async def test_edit_author_invalid_data(async_client, test_current_user, test_author, test_user):
+    test_user['role'] = UserRoles.admin
+    invalid_author_data = {"company": "Updated company title", "biography": "too long text" * 500}
+    response = await async_client.patch(f"/authors/{test_author['_id']}", json=invalid_author_data)
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
+async def test_edit_author_admin_required(async_client, test_user, test_current_user, test_author):
+    test_user['role'] = UserRoles.user
+    response = await async_client.patch(f"/authors/{test_author['_id']}", json=UpdatedAuthorData)
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+async def test_destroy_author_successful(async_client, test_current_user, test_author, test_user):
+    test_user['role'] = UserRoles.admin
+    response = await async_client.delete(f"/authors/{test_author['_id']}")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['detail'] == 'Author deleted successfully'
+
+
+async def test_destroy_author_unauthorized(async_client, test_author):
+    response = await async_client.delete(f"/authors/{test_author['_id']}")
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+async def test_delete_author_invalid_author_id(async_client, test_current_user, test_user):
+    test_user['role'] = UserRoles.admin
+    response = await async_client.delete(f"/authors/{str(ObjectId())}")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+async def test_delete_author_admin_required(async_client, test_user, test_current_user, test_author):
+    test_user['role'] = UserRoles.user
+    response = await async_client.delete(f"/authors/{test_author['_id']}")
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN

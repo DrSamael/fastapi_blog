@@ -122,9 +122,9 @@ async def test_edit_post_blank_data(async_client, test_post, test_current_user):
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-async def test_edit_post_invalid_data(async_client, test_current_user):
+async def test_edit_post_invalid_data(async_client, test_current_user, test_post):
     post_data = {"title": "Test title", "content": "too long text" * 1000}
-    response = await async_client.patch(f"/posts/{str(ObjectId())}", json=post_data)
+    response = await async_client.patch(f"/posts/{test_post['_id']}", json=post_data)
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 

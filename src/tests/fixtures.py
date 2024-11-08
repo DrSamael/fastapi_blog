@@ -26,6 +26,9 @@ AuthorData = {"company": "Company title",
               "biography": faker.text(max_nb_chars=50),
               "genre": ["social"]}
 
+UpdatedAuthorData = {"company": "Updated Company title",
+                     "biography": "Updated biography"}
+
 
 @pytest_asyncio.fixture(scope='function', autouse=True)
 async def clear_test_db():
