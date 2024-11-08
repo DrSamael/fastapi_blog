@@ -24,9 +24,7 @@ UpdatedUserData = {"first_name": "Updated first_name",
 
 AuthorData = {"company": "Company title",
               "biography": faker.text(max_nb_chars=50),
-              "genre": ["social"],
-              "user_id": ObjectId()
-              }
+              "genre": ["social"]}
 
 
 @pytest_asyncio.fixture(scope='function', autouse=True)
