@@ -1,18 +1,16 @@
-import os
 import jwt
-import dotenv
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from typing import Union, Any, Literal
 
-dotenv.load_dotenv()
+from src.settings.app import AppSettings
 
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES')
-REFRESH_TOKEN_EXPIRE_MINUTES = os.getenv('REFRESH_TOKEN_EXPIRE_MINUTES')
-ALGORITHM = os.getenv('ALGORITHM')
-JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
-JWT_REFRESH_SECRET_KEY = os.getenv('JWT_REFRESH_SECRET_KEY')
+ACCESS_TOKEN_EXPIRE_MINUTES = AppSettings().access_token_expire_minutes
+REFRESH_TOKEN_EXPIRE_MINUTES = AppSettings().refresh_token_expire_minutes
+ALGORITHM = AppSettings().algorithm
+JWT_SECRET_KEY = AppSettings().jwt_secret_key
+JWT_REFRESH_SECRET_KEY = AppSettings().jwt_refresh_secret_key
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 TokenType = Literal["access_token", "refresh_token"]
