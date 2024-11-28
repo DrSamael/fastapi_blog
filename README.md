@@ -22,8 +22,22 @@
 
 ### Create admin user
 
-python seed.py
+python -m src.seed
 
 ### Run the tests and generate a coverage report
 
 pytest --cov --cov-report=html
+
+## Run the project from Docker
+
+### Build the Docker image:
+
+sudo docker-compose -f docker/docker-compose.yml build
+
+### Start the containers:
+
+sudo docker-compose -f docker/docker-compose.yml up
+
+### Stop the containers:
+
+sudo docker-compose -f docker/docker-compose.yml down

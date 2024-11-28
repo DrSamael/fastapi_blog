@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: fastapi_blog_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../src/app
+    environment:
+      JWT_SECRET_KEY: "4e5a74cc682cd6c3b1e14c6926cf11fb916d8edc9fc1ebd9ef7bbd76424d9bce"
+      JWT_REFRESH_SECRET_KEY: "0ec65a47ab2923d14f6fdddd304339874d32fc14f6163840de61c5cab9c0205b"
+      ALGORITHM: "HS256"
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+      REFRESH_TOKEN_EXPIRE_MINUTES: "180"
+      DATABASE_URI: "mongodb://mongo:27017"
+    depends_on:
+      - mongo
+    command: sh -c "python -m src.seed && uvicorn src.main:app --host 0.0.0.0 --port 8000"
+
+  mongo:
+    image: mongo:5.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
