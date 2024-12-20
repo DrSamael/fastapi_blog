@@ -1,6 +1,8 @@
 from fastapi import status
+import json
 
 from src.tests.fixtures import *
+from src.database import redis
 
 
 async def test_list_posts(async_client, test_posts_list):
@@ -29,9 +31,28 @@ async def test_current_user_posts_unauthorized(async_client):
 
 
 async def test_published_posts_successful(async_client, test_posts_list, test_post, test_current_user_author):
+    await redis.delete("posts")
     response = await async_client.get("/posts/published")
     result_posts_ids = [post['_id'] for post in response.json()]
     test_posts_ids = [str(post['_id']) for post in test_posts_list]
+
+    assert response.status_code == status.HTTP_200_OK
+    assert result_posts_ids == test_posts_ids
+    assert str(test_post['_id']) not in result_posts_ids
+
+
+async def test_published_cached_posts_successful(async_client, test_posts_list, test_post, test_current_user_author):
+    await redis.delete("posts")
+    serialized_posts = [
+        {**post, "_id": str(post["_id"]), "user_id": str(post["user_id"])}
+        for post in test_posts_list
+    ]
+    await redis.set("posts", json.dumps(serialized_posts))
+
+    response = await async_client.get("/posts/published")
+    result_posts_ids = [post['_id'] for post in response.json()]
+    test_posts_ids = [str(post['_id']) for post in test_posts_list]
+    await redis.delete("posts")
 
     assert response.status_code == status.HTTP_200_OK
     assert result_posts_ids == test_posts_ids
