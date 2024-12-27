@@ -7,3 +7,4 @@ class AppSettings(BaseSettings):
     algorithm: str
     jwt_secret_key: str
     jwt_refresh_secret_key: str
+    cache_expiration_seconds: str
