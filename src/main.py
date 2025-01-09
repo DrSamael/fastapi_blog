@@ -4,7 +4,6 @@ from src.user.routers import router as user_router
 from src.auth.routers import router as auth_router
 from src.author.routers import router as author_router
 
-
 app = FastAPI()
 app.include_router(post_router)
 app.include_router(user_router)
