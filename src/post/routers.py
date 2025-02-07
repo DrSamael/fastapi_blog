@@ -55,3 +55,22 @@ async def destroy_post(post_id: str):
     if post.deleted_count == 1:
         return {"detail": "Post deleted successfully"}
     raise HTTPException(status_code=404, detail="Post not found")
+
+
+# @router.get("/search/")
+# async def search_posts(query: str):
+#     search_body = {
+#         "query": {
+#             "multi_match": {
+#                 "query": query,
+#                 "fields": ["title", "content"],
+#                 "fuzziness": "AUTO"
+#             }
+#         }
+#     }
+#
+#     response = await es.search(index="blog_posts", body=search_body)
+#     results = [{"id": hit["_id"], "title": hit["_source"]["title"], "content": hit["_source"]["content"]}
+#                for hit in response["hits"]["hits"]]
+#
+#     return {"results": results}

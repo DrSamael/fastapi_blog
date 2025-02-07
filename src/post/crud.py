@@ -5,6 +5,7 @@ import json
 from src.database import post_collection, redis
 from .schemas import Post
 from src.settings.app import AppSettings
+from src.search.crud import add_post_to_elasticsearch
 
 CACHE_EXPIRATION_SECONDS = AppSettings().cache_expiration_seconds
 
@@ -42,6 +43,7 @@ async def add_post(post_data: dict, user_id: str):
     post = await post_collection.insert_one(post_data)
     new_post = await retrieve_post(post.inserted_id)
     await _delete_cached_posts()
+    await add_post_to_elasticsearch(new_post)
     return new_post
 
 
