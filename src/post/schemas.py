@@ -31,3 +31,7 @@ class Post(PostBase):
 
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     user_id: Optional[PyObjectId] = None
+
+
+class SearchPost(BaseModel):
+    query: str

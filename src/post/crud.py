@@ -5,7 +5,7 @@ import json
 from src.database import post_collection, redis
 from .schemas import Post
 from src.settings.app import AppSettings
-from src.search.crud import add_post_to_elasticsearch
+from src.search.crud import add_post_to_elasticsearch, update_post_in_elasticsearch, delete_post_from_elasticsearch
 
 CACHE_EXPIRATION_SECONDS = AppSettings().cache_expiration_seconds
 
@@ -49,7 +49,10 @@ async def add_post(post_data: dict, user_id: str):
 
 async def delete_post(post_id: str):
     await _delete_cached_posts()
-    return await post_collection.delete_one({"_id": ObjectId(post_id)})
+    deleted_post = await post_collection.delete_one({"_id": ObjectId(post_id)})
+    if deleted_post:
+        await delete_post_from_elasticsearch(post_id)
+        return deleted_post
 
 
 async def update_post(post_id: str, data: dict):
@@ -60,6 +63,7 @@ async def update_post(post_id: str, data: dict):
         updated_post = await post_collection.update_one({"_id": ObjectId(post_id)}, {"$set": data})
         if updated_post:
             await _delete_cached_posts()
+            await update_post_in_elasticsearch(post_id, data)
             return await retrieve_post(post_id)
     return None
 

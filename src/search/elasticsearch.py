@@ -42,8 +42,15 @@ async def create_index():
         },
         "mappings": {
             "properties": {
+                "id": {
+                    "type": "keyword"
+                },
+                "user_id": {
+                    "type": "keyword"
+                },
                 "title": {
                     "type": "text",
+                    "analyzer": "content_analyzer",
                     "fields": {
                         "keyword": {
                             "type": "keyword",
@@ -54,6 +61,9 @@ async def create_index():
                 "content": {
                     "type": "text",
                     "analyzer": "content_analyzer"
+                },
+                "published": {
+                    "type": "boolean"
                 }
             }
         }
@@ -62,6 +72,6 @@ async def create_index():
     exists = es.indices.exists(index=index_name)
     if not exists:
         es.indices.create(index=index_name, body=mapping)
-        print(f"✅ Index '{index_name}' created successfully.")
+        print(f"Index '{index_name}' created successfully.")
     else:
-        print(f"ℹ️ Index '{index_name}' already exists.")
+        print(f"Index '{index_name}' already exists.")

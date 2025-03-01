@@ -1,4 +1,5 @@
 from bson import ObjectId
+from pydantic import EmailStr
 
 from src.database import user_collection
 from .schemas import User
@@ -17,7 +18,7 @@ async def retrieve_user(user_id: str):
     return await user_collection.find_one({"_id": ObjectId(user_id)})
 
 
-async def retrieve_user_by_email(email: str):
+async def retrieve_user_by_email(email: EmailStr | str):
     return await user_collection.find_one({"email": email})
 
 
