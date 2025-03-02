@@ -6,7 +6,7 @@ es = Elasticsearch([AppSettings().elasticsearch_url])
 
 
 async def create_index():
-    index_name = "fastapi_blog_posts"
+    index_name = AppSettings().elasticsearch_post_index
 
     mapping = {
         "settings": {

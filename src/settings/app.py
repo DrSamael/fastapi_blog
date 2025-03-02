@@ -14,3 +14,4 @@ class AppSettings(BaseSettings):
     jwt_refresh_secret_key: str = os.getenv("JWT_REFRESH_SECRET_KEY")
     cache_expiration_seconds: str = os.getenv("CACHE_EXPIRATION_SECONDS")
     elasticsearch_url: str = os.getenv("ELASTICSEARCH_URL")
+    elasticsearch_post_index: str = os.getenv("ELASTICSEARCH_POST_INDEX")
