@@ -20,9 +20,13 @@ services:
       DATABASE_NAME: "fastapi_db_docker"
       CACHE_EXPIRATION_SECONDS: "6000"
       REDIS_URL: "redis://redis:6379/"
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+      ELASTICSEARCH_POST_INDEX: "fastapi_blog_posts_docker"
     depends_on:
       - mongo
       - redis
+      - elasticsearch
+    restart: unless-stopped
     command: sh -c "python -m src.seed && uvicorn src.main:app --host 0.0.0.0 --port 8000"
 
   mongo:
@@ -39,5 +43,20 @@ services:
     ports:
       - "6379:6379"
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.18
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - network.host=0.0.0.0
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    restart: unless-stopped
+
 volumes:
   mongo_data:
+  es_data:
