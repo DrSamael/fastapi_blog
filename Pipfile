@@ -22,6 +22,8 @@ pydantic-settings = "==2.6.1"
 redis = "==5.2.1"
 elasticsearch = "==7.17.9"
 python-multipart = "==0.0.20"
+grpcio = "==1.71.0"
+grpcio-tools = "==1.71.0"
 
 [dev-packages]
 
