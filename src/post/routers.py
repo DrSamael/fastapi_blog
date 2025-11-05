@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, status
 from typing import List
 
+from .csv_import import import_posts
 from .schemas import Post, PostUpdate, PostCreate, SearchPost
 from .crud import (add_post, update_post, retrieve_post, retrieve_posts, delete_post, retrieve_published_posts,
                    retrieve_current_user_posts)
@@ -36,7 +37,7 @@ async def current_user_posts(current_user: User = Depends(get_current_user)):
 async def show_post(post_id: str):
     post = await retrieve_post(post_id)
     if post is None:
-        raise HTTPException(status_code=404, detail="Post not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     return post
 
 
@@ -45,7 +46,7 @@ async def show_post(post_id: str):
 async def edit_post(post_id: str, post: PostUpdate):
     updated_post = await update_post(post_id, post.model_dump(exclude_unset=True))
     if updated_post is None:
-        raise HTTPException(status_code=404, detail="Post not found or no changes made")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found or no changes made")
     return updated_post
 
 
@@ -55,7 +56,7 @@ async def destroy_post(post_id: str):
     post = await delete_post(post_id)
     if post.deleted_count == 1:
         return {"detail": "Post deleted successfully"}
-    raise HTTPException(status_code=404, detail="Post not found")
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
 
 @router.post("/search", response_model={})
@@ -71,3 +72,14 @@ async def search_posts(query: SearchPost):
     }
     result = await search_post_in_elasticsearch(search_body)
     return {"result": result}
+
+
+@router.post("/upload", response_model={},
+             dependencies=[Depends(get_current_user), Depends(author_required)])
+async def upload_posts(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only CSV files are allowed")
+
+    result = await import_posts(file, current_user)
+
+    return {"detail": f"Created posts count: {result}"}

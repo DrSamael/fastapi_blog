@@ -24,6 +24,7 @@ elasticsearch = "==7.17.9"
 python-multipart = "==0.0.20"
 grpcio = "==1.71.0"
 grpcio-tools = "==1.71.0"
+pandas = "==2.3.3"
 
 [dev-packages]
 
