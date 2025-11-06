@@ -11,6 +11,7 @@ class PostBase(BaseModel):
     title: str = Field(max_length=200, min_length=5)
     content: str = Field(max_length=10000, min_length=10)
     published: bool = Field(default=False)
+    views: int = Field(default=0)
 
 
 class PostCreate(PostBase):
@@ -35,3 +36,10 @@ class Post(PostBase):
 
 class SearchPost(BaseModel):
     query: str
+
+
+class PostStatsResponse(BaseModel):
+    avg_views: float
+    median_views: float
+    max_views: float
+    std_dev: float

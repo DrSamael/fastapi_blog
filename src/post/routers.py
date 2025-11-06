@@ -2,10 +2,10 @@ from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, status
 from typing import List
 
 from .csv_import import import_posts
-from .schemas import Post, PostUpdate, PostCreate, SearchPost
+from .schemas import Post, PostUpdate, PostCreate, SearchPost, PostStatsResponse
 from .crud import (add_post, update_post, retrieve_post, retrieve_posts, delete_post, retrieve_published_posts,
-                   retrieve_current_user_posts)
-from src.auth.deps import get_current_user, author_required, check_post_ownership
+                   retrieve_current_user_posts, get_post_stats)
+from src.auth.deps import get_current_user, author_required, check_post_ownership, admin_required
 from src.user.schemas import User
 from src.search.crud import search_post_in_elasticsearch
 
@@ -26,6 +26,11 @@ async def list_posts():
 @router.get("/published", response_model=List[Post])
 async def published_list_posts():
     return await retrieve_published_posts()
+
+
+@router.get("/stats", response_model=PostStatsResponse, dependencies=[Depends(admin_required)])
+async def posts_stats():
+    return await get_post_stats()
 
 
 @router.get("/user-posts", response_model=List[Post], dependencies=[Depends(get_current_user)])

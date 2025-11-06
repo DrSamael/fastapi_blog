@@ -28,6 +28,7 @@ async def import_posts(file: UploadFile, current_user: User) -> int:
             "title": row["title"],
             "content": row["content"],
             "published": False,
+            "views": 0,
             "user_id": current_user["_id"]
         }
         post = await add_post(post_data, current_user["_id"])

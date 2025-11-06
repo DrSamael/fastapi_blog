@@ -31,5 +31,6 @@ async def generate_mongo_data(post_data) -> dict:
         "title": post_data["title"],
         "content": post_data["content"],
         "published": post_data["published"],
+        "views": post_data["views"],
         "user_id": str(post_data["user_id"])
     }

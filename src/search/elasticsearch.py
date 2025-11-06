@@ -64,6 +64,9 @@ async def create_index():
                 },
                 "published": {
                     "type": "boolean"
+                },
+                "views": {
+                    "type": "integer"
                 }
             }
         }

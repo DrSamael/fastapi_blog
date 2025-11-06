@@ -1,6 +1,7 @@
 from bson import ObjectId
 from typing import Optional
 import json
+import numpy as np
 
 from src.database import post_collection, redis
 from .schemas import Post
@@ -53,6 +54,7 @@ async def delete_post(post_id: str):
     if deleted_post:
         await delete_post_from_elasticsearch(post_id)
         return deleted_post
+    return None
 
 
 async def update_post(post_id: str, data: dict):
@@ -68,11 +70,23 @@ async def update_post(post_id: str, data: dict):
     return None
 
 
+async def get_post_stats() -> dict:
+    posts = await post_collection.find().to_list(length=None)
+    views = np.array([p["views"] for p in posts])
+    return {
+        "avg_views": np.mean(views),
+        "median_views": np.median(views),
+        "max_views": np.max(views),
+        "std_dev": np.std(views),
+    }
+
+
 async def _get_cached_posts():
     cached_posts = await redis.get("posts")
     if cached_posts:
         posts = [Post(**post_data) for post_data in json.loads(cached_posts)]
         return posts
+    return None
 
 
 async def _set_cached_posts(posts):
