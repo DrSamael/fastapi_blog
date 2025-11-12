@@ -2,11 +2,14 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated, Union, Any
 from fastapi import Request
+from urllib.parse import urlencode
+import requests
 
 from src.user.schemas import User, UserCreate, UserTokens, UserOut
 from src.user.crud import retrieve_user_by_email, add_user, retrieve_user
 from .utils import verify_password, create_token, validate_token
 from .deps import get_current_user
+from src.settings.app import AppSettings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -57,4 +60,42 @@ async def refresh_access_token(request: Request):
     return {
         "access_token": await create_token(user['_id'], None, 'access_token'),
         "refresh_token": await create_token(user['_id'], None, 'refresh_token')
+    }
+
+
+@router.get("/oauth-login")
+def login_with_google():
+    params = {
+        "client_id": AppSettings().client_id,
+        "redirect_uri": AppSettings().redirect_uri,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "consent"
+    }
+    url = f"{AppSettings().auth_url}?{urlencode(params)}"
+    return {"login_url": url}
+
+
+@router.get("/oauth-callback")
+def auth_callback(code: str):
+    data = {
+        "code": code,
+        "client_id": AppSettings().client_id,
+        "client_secret": AppSettings().client_secret,
+        "redirect_uri": AppSettings().redirect_uri,
+        "grant_type": "authorization_code"
+    }
+    token_res = requests.post(AppSettings().token_url, data=data)
+    tokens = token_res.json()
+
+    headers = {"Authorization": f"Bearer {tokens['access_token']}"}
+    user_info = requests.get(AppSettings().userinfo_url, headers=headers).json()
+
+    print(user_info)
+    print(tokens)
+
+    return {
+        "user": user_info,
+        "tokens": tokens
     }
