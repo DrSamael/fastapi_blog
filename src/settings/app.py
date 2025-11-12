@@ -15,3 +15,10 @@ class AppSettings(BaseSettings):
     cache_expiration_seconds: str = os.getenv("CACHE_EXPIRATION_SECONDS")
     elasticsearch_url: str = os.getenv("ELASTICSEARCH_URL")
     elasticsearch_post_index: str = os.getenv("ELASTICSEARCH_POST_INDEX")
+    # OAuth
+    client_id: str = os.getenv("CLIENT_ID")
+    client_secret: str = os.getenv("CLIENT_SECRET")
+    redirect_uri: str = os.getenv("REDIRECT_URI")
+    auth_url: str = os.getenv("AUTH_URL")
+    token_url: str = os.getenv("TOKEN_URL")
+    userinfo_url: str = os.getenv("USERINFO_URL")
